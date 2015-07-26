@@ -1,9 +1,0 @@
-User-agent: *
-Disallow: config.php
-Disallow: admin.php
-Disallow: w.php
-Disallow: cache.php
-Disallow: header.php
-Disallow: footer.php
-Disallow: cat.php
-Disallow: track.php

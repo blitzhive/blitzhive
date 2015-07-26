@@ -5,6 +5,11 @@ if($cnfError=="checked"){
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
+}else{
+ini_set('display_errors',0);
+ini_set('display_startup_errors',0);
+error_reporting(0);
+	
 }
 if(isset($_GET['s']))$s=filter_var($_GET['s'], FILTER_SANITIZE_SPECIAL_CHARS);
 else $s="";

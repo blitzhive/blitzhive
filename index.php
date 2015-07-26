@@ -126,11 +126,12 @@ if($cnfNewsFeed!=""){
 	if(isset($_GET['p']))$back=$_GET['p']-$cnfNewsFeed;
 	$desde=$_GET['p']+1;
 	if($back>=0&&$_GET['p']!=0){echo "<a href='".$cnfHome."?p=".$back."'/><b><<</b> </a>";}
-	echo "Mensajes del :[".$desde." al ".$next."]";
+	echo "<span id='pagination'>Mensajes del :[".$desde." al ".$next."]</span>";
 	if($nnext>0&&$nnext<=count($xmlP->h)){
 	echo "<a href='".$cnfHome."?p=".$next."'/><b>>></b></a>";}
 }
 $adsx=0;
+$class=0;
 echo '<br style="clear:both;">';
 foreach ($xmlP->h as $programado) {
 	if($rr>=$_GET['p']&&$rrr<$cnfNewsFeed){
@@ -139,9 +140,10 @@ foreach ($xmlP->h as $programado) {
 	$pathForumTotal=substr($programado->t,0,$posVar);
 	$pathForum=str_replace("-"," ",$programado->t); 
 	if(file_exists(utf8_decode($programado->t).".xml")){
-	$xml=simplexml_load_file(utf8_decode($programado->t).".xml");
-	echo '<article class="boxPostPortada" id="0"><header>';
-	echo '<h1 class="h2Gray"><a class="aGray" title="'.$lngToMes.'" href="'.str_replace("/","/".$strLink,$programado->t).$strLinkEnd.'"/>'.$xml->p[0]->t.'</a></h1>';
+	$xml=simplexml_load_file(utf8_decode($programado->t).".xml");	
+	if($class==0){echo '<article class="boxPostPortada" id="0"><header>';$class=1;}
+	else {echo '<article class="boxPostPortada2" id="0"><header>';$class=0;}
+	echo '<h1 class="h1Left"><a class="aGray" title="'.$lngToMes.'" href="'.str_replace("/","/".$strLink,$programado->t).$strLinkEnd.'"/>'.$xml->p[0]->t.'</a></h1>';
 	echo '<p class="pSubLine"><b>'.$xml->p[0]->u.'</b> <time class="entry-date" datetime="'.gmdate("Y-m-d G:i",(int)$xml->p[0]->a).'">'.gmdate("Y-m-d G:i",(int)$xml->p[0]->a).'</time></p>';
 	echo '</header>';
 	echo '<br style="clear:both;">';
@@ -158,8 +160,9 @@ if($strTags!="0"&&$strTags!=""){
 	echo '<div class="boxTags" ><a class="portadaLink" href="'.$cnfHome.$pathForumTotal.'"><b>'.$pathForumTotal.':</b></a>';
 	$strTags=explode(",",strtolower($strTags));
 	for($xf=0;$xf<count($strTags);$xf++){
-	if($strTags[$xf]!="")echo '<a  class="portadaLink"  href="'.$cnfHome.$pathForumTotal.'/'.$strLink.$cnfSubject.$strLinkCat.$strTags[$xf].$strLinkEnd.'" title="'.$strTags[$xf].'">'.$strTags[$xf].'</a></div>'; 
+	if($strTags[$xf]!="")echo '<a  class="portadaLink"  href="'.$cnfHome.$pathForumTotal.'/'.$strLink.$cnfSubject.$strLinkCat.$strTags[$xf].$strLinkEnd.'" title="'.$strTags[$xf].'">'.$strTags[$xf].'</a>'; 
 	}
+	echo '</div>';
 }
 $adsx++;
 if($cnfAdsense!=""&&$adsx>=intval($cnfAdsIndex)){

@@ -271,7 +271,8 @@ $strEmailChange="<h4 class='h4Bad'>".$lngFillPass." :(</h4>";
 	$strTitle.="<label>".$lngParent.":</label>".$strPadre."<br>";
 	$strTitle.="<label>".$lngDes.":</label>".$strDes."<br>";
 	
-	if(isset($_SESSION['iduserx'])&&$_SESSION['iduserx']!=$user&&intval($_SESSION['level'])>60){
+	//&&intval($_SESSION['level'])>60
+	if(isset($_SESSION['iduserx'])&&$_SESSION['iduserx']!=$user){
 	
 
 	$strTitle.='<form id="form1" name="form1" method="post" action="user.php?user='.$user.'"  enctype="multipart/form-data">	
@@ -287,9 +288,10 @@ $strEmailChange="<h4 class='h4Bad'>".$lngFillPass." :(</h4>";
 	<input  id="password2" placeholder="Repetir contraseña" name="password2" type="password" value=""/><br>
 	<input type="submit" name="submitCambio" id="submitCambio" value="'.$lngChange.'" /></form>'.$strEmailChange;
 	
-	}else{
-	$strTitle.='<i>Necesitas nivel <a href="'.$cnfHome.'swarm.php" title="'.$lngMoreInfoLevel.'">Omega(+320)</a> '.$lngAllowEmail.'</i>';
 	}
+	/*else{
+	$strTitle.='<i>Necesitas nivel <a href="'.$cnfHome.'swarm.php" title="'.$lngMoreInfoLevel.'">Omega(+320)</a> '.$lngAllowEmail.'</i>';
+	}*/
 		
 		}else{
 		$strTitle.="<title>".$user." | ".$cnfTitle."</title></head><body>";

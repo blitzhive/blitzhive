@@ -115,9 +115,10 @@ $strBoxPost.='<input style="float:left;" type="file" name="file[]" id="file2">
 <input type="submit" name="submitFile" id="submitFile" value="'.$lngUpload.'">
 </div>';
 $strBoxPost.='
+<span style="font-size:90%;float:left;"><i>Hotkeys:</i><b>ctrl+</b>b=(bold) <b>|</b> i=(italic) <b>|</b> u=(underline) <b>|</b> s=(strike) <b>|</b> 1=(h1) <b>|</b> 2=(h2) <b>|</b> 3=(h3) <b>|</b> m=(img) <b>|</b> q=(code)  <b>|</b> a=(link) <b>|</b> g=(tag)</span>
 <br style="clear:both;">
-<input type="button" value="B" onclick="addtag(\'b\')" style="width:30px; font-weight:bold;" />
-<input type="button" value="I" onclick="addtag(\'i\')"  style="width:30px; font-style:italic;" />
+<input type="button" alt="ctrl+b" value="B" onclick="addtag(\'b\')" style="width:30px; font-weight:bold;" />
+<input type="button" title="ctrl+i" value="I" onclick="addtag(\'i\')"  style="width:30px; font-style:italic;" />
 <input type="button" value="U" onclick="addtag(\'u\')"  style="width:30px; text-decoration:underline;" />
 <input type="button" value="S" onclick="addtag(\'s\')"  style="width:30px; text-decoration:strike;" />
 <input type="button" value="<h1>" onclick="addtag(\'h1\')"  style="width:30px; text-decoration:strike;" />
@@ -130,14 +131,12 @@ $strBoxPost.='
 <input id="linkUrlTag" style="width:20%;" type="text" value="'.$cnfHome.$cnfSubject.'/'.'" />
 <input type="button" value="Tag" onclick="addtag(\'at\')"  />
 <input type="checkbox" name="no" id="no" value="'.$_SESSION['iduserx'].'" checked>'.$lngNotify;
-/*?>
-<script src="<?php echo $cnfHome."blitzhive.js";?>" type="text/javascript" ></script>
-<?php*/
+
 
 if($cnfPermaLink==0){
-$posVar=strrpos($_SERVER['REQUEST_URI'], "index.php/");
-$posVarP=strrpos($_SERVER['REQUEST_URI'], "?p=");
-$posVarI=strrpos($_SERVER['REQUEST_URI'], "?");
+$posVar=strpos($_SERVER['REQUEST_URI'], "index.php/");
+$posVarP=strpos($_SERVER['REQUEST_URI'], "?p=");
+$posVarI=strpos($_SERVER['REQUEST_URI'], "?");
 
 if($posVar===false&&$posVarP===false&&!(isset($_GET[$cnfSubject]))&&$posVarI!==false){
 $_SERVER['REQUEST_URI']=str_replace("m=","",$_SERVER['REQUEST_URI']);
@@ -305,6 +304,7 @@ $titleFile=str_replace ("-"," ",$w);
 echo "<title>".$titleFile." | ".$forumName." | ".$cnfTitle."</title>";
 }
 ?>
+<script src="<?php echo $cnfHome.$cnfJava;?>" type="text/javascript" ></script>
 </head>
 <body>
 <div class="box1">
@@ -422,8 +422,8 @@ while (false !== ($file = readdir($handle))) {
 	   &&strpos($strFilesT,utf8_encode($file).";",0)===false
 	   ) {	  
 		  $posVarTag=strrpos($file, "_T_");
-		  if($posVarTag===false){
-		  $files[$xx][0] = $file;
+		  if($posVarTag===false){			  
+		  $files[$xx][0] = utf8_encode($file);
 		  $files[$xx][1] = filemtime($file);
 		  $files[$xx][2] =0;	
 				}
@@ -467,16 +467,19 @@ $adsx=0;
 foreach($files as $file) {
 	
 if($xx>$_GET['p']&&$xx<=$next){
-$fileName=basename($file[0], ".xml").PHP_EOL;
-$strPermalink="";
+$strAuxFile0=$file[0];	
+//$fileName=basename($strAuxFile0, ".xml").PHP_EOL;
+if((int)$file[2]==0)$fileName=preg_replace('/\\.[^.\\s]{3,4}$/', '', $file[0]);
+else $fileName=preg_replace('/\\.[^.\\s]{3,4}$/', '', utf8_encode($file[0]));
 
-if($cnfPermaLink==0)$strPermalink=$cnfHome.$pathForumTotal.$auxBlog."index.php/".utf8_encode($fileName)."/";
-else if($cnfPermaLink==2)$strPermalink=$cnfHome.$pathForumTotal.$auxBlog."?m=".utf8_encode($fileName);
+$strPermalink="";
+if($cnfPermaLink==0)$strPermalink=$cnfHome.$pathForumTotal.$auxBlog."index.php/".$fileName."/";
+else if($cnfPermaLink==2)$strPermalink=$cnfHome.$pathForumTotal.$auxBlog."?m=".$fileName;
 if((int)$file[2]==0){
- echo "<div class='boxForum2in'><h5 class='h5Left'><a href='".$strPermalink."'>".str_replace("-"," ",utf8_encode($fileName))."</a></h5>&nbsp;&nbsp;".$lngModified.":&nbsp;&nbsp;<time class='entry-date' datetime='".gmdate("D, d M Y H:i:s O",(int)$file[1])."'>".gmdate("<b>d-M-Y</b> G:i",(int)$file[1])."</time></div>";
+ echo "<div class='boxForum2in'><h5 class='h5Left'><a href='".$strPermalink."'>".str_replace("-"," ",$fileName)."</a></h5>&nbsp;&nbsp;".$lngModified.":&nbsp;&nbsp;<time class='entry-date' datetime='".gmdate("D, d M Y H:i:s O",(int)$file[1])."'>".gmdate("<b>d-M-Y</b> G:i",(int)$file[1])."</time></div>";
  $alg=1;
  }else{
- echo "<div class='boxForumPin'><h5 class='h5Left'><a href='".$strPermalink."'>".str_replace("-"," ",utf8_encode($fileName))."</a></h5>&nbsp;&nbsp;".$lngLastAnwser.":&nbsp;&nbsp;<time class='entry-date' datetime='".gmdate("D, d M Y H:i:s O",(int)$file[2])."'>".gmdate("<b>d-M-Y</b> G:i",(int)$file[2])."</time></div>";
+ echo "<div class='boxForumPin'><h5 class='h5Left'><a href='".$strPermalink."'>".str_replace("-"," ",$fileName)."</a></h5>&nbsp;&nbsp;".$lngLastAnwser.":&nbsp;&nbsp;<time class='entry-date' datetime='".gmdate("D, d M Y H:i:s O",(int)$file[2])."'>".gmdate("<b>d-M-Y</b> G:i",(int)$file[2])."</time></div>";
   $alg=1;}
 
 $adsx++;
@@ -657,7 +660,7 @@ else echo "<a href='".$cnfHome.$pathForumTotal.$auxBlog.$strLink.$w."&p=".$back.
 }
 $hasta=count($xml->p->children());
 if($hasta>$next)$hasta=$next;
-echo "Respuestas :[".$desde." al ".$hasta."]";
+echo "<span id='pagination'>Respuestas :[".$desde." al ".$hasta."]</span>";
 echo '<br style="clear:both;">';
 if($nnext>0&&isset($xml->p[$next])){
 if($cnfPermaLink==0)echo "<a href='".$cnfHome.$pathForumTotal.$auxBlog.$strLink.$w."/p/".$next."/'/><b>>></b></a>";
@@ -666,16 +669,18 @@ else echo "<a href='".$cnfHome.$pathForumTotal.$auxBlog.$strLink.$w."/&p=".$next
 $xr=0;$alg=0;$author=0;$adsx=0;
 foreach ($xml->p as $repuesta) {
 if($xr==0&&$repuesta->u==$_SESSION['iduserx']){
-$author=1;	
-	
-}	
+$author=1;		
+}
+/*else{
+$author=0;		
+}	*/
 if($xr>=$_GET['p']&&$xr<$next){
 $alg=1;
 $subStyle='';
 $subStyle='style="background-color:#FFF;"'; 
 $boxPostPortada='boxPostPortadaR';
 if($xr%2!=0){
-$subStyle='style="background-color:#F5F5F5;"'; 
+$subStyle='style="background-color:#efefef;"'; 
 }
 if($xr!=0&&$xr==$xml->p[0]->f)$subStyle='style="background-color:#D6FFAE;"'; 
 if($xr==0)$boxPostPortada='boxPostPortada';
@@ -683,7 +688,7 @@ echo "\r\n";
 ?>
 <article class="<?php echo $boxPostPortada;?>" <?php echo $subStyle; ?>  id="<?php echo $xr; ?>">
   <header>
-	<?php if($xr==0)echo "<h1 id='h2Title' class='h2Gray'>".$repuesta->t."</h1>\r\n";
+	<?php if($xr==0)echo "<h1 class='h2Title'>".$repuesta->t."</h1>\r\n";
 	 if($xr!=0&&$xr==$xml->p[0]->f)echo " <h5>✔<i>".$lngFavorite."</i></h5>\r\n";
 	?>
 	<p class="pSubLine"><?php echo "<a href='".$cnfHome."user.php".$strLinkUser.$repuesta->u.$strLinkEnd."'  title='Ver perfil de ".$repuesta->u."'>".$repuesta->u."</a> ";?>
@@ -701,12 +706,10 @@ echo "\r\n";
   
   <div id="divPost"> 
    <?php
-if($xr==0&&$xml->p[0]->f!=0){
-	
-echo "<a href='#".$xml->p[0]->f."'>✔ ".$lngFavOne."</a>";
-}
-   
-if($xr!=0&&$author==1&&$xr!=$xml->p[0]->f&&$_SESSION['iduserx']!=$xml->p[0]->u){
+   if($xr==0&&$xml->p[0]->f!=0){
+	echo "<a href='#".$xml->p[0]->f."'>✔ ".$lngFavOne."</a><br>";
+	}
+if($xr!=0&&$author==1&&$xr!=$xml->p[0]->f&&$_SESSION['iduserx']!=$xml->p[$xr]->u){
 echo '<form  method="post" action="'.$cnfHome."w.php?q=7&w=".$pathForumTotal.'/'.utf8_encode($w).'&t='.$xr.'&y='.$repuesta->u.'"> 
 <input class="favButton" type="submit" id="likeButton" name="likeButton" value="Puedes elegirla como la mejor respuesta"></form>';
 }
@@ -850,9 +853,11 @@ $xr++;
 }
 
 if($alg==0)header( "refresh:0;url=".$cnfHome.$pathForumTotal."/?".$w);
-if(isset($_SESSION['iduserx'])&&$repuesta->l!="1"
-||($_SESSION['iduserx']==$cnfAdm)
-||($_SESSION['iduserx']==$forumMod)
+
+if(isset($_SESSION['iduserx'])){
+if($repuesta->l!="1"
+||$_SESSION['iduserx']==$cnfAdm
+||$_SESSION['iduserx']==$forumMod
 ){
 ?>
 <form class="formBlitz2" name="answer" id="answer" method="post" action="<?php echo  $cnfHome."w.php?q=2&t=".$xr."&w=".$pathForumTotal.$auxBlog.utf8_encode($w);?>" enctype="multipart/form-data">
@@ -882,7 +887,7 @@ if($blogMode==0)echo '<input type="checkbox" name="po" id="po" value="1">'.$lngI
 <br style="clear:both;">	
 </form>
 <?php
-}else{
+}
 }
 ?>
 <p><time pubdate datetime="<?php  echo gmdate("D, d M Y H:i:s O",(int)$xml->p[$xr-1]->a);?>"></time></p>

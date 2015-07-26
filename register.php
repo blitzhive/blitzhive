@@ -89,14 +89,16 @@ if($code=="blitzito"){*/
 	$_POST["user"]=strtolower($_POST["user"]);
 	$enter=false;
 	if(!is_dir($cnfUsers))mkdir($cnfUsers, 0777, true);
-    if (file_exists($cnfUsers."/".$_POST["user"][0].".php")) {
+    if (file_exists($cnfUsers."/".$_POST["user"][0].".php")) 
+	{
+		if(!is_writable($cnfUsers."/".$_POST["user"][0].".php"))chmod($cnfUsers."/".$_POST["user"][0].".php", 0644);
+	
 		$contenido=file_get_contents("users/".strtolower($_POST["user"][0]).".php");	
 			if(strpos(htmlentities($contenido),$_POST["user"]."=",0)!==false){
 			echo "<h4 class='h4Bad'>".$lngStillUser."</h4>";
 			}else if(strpos(htmlentities($contenido),",".$_POST["email"].",",0)!==false){
 			echo "<h4 class='h4Bad'>".$lngStillEmail."</h4>";
-			}
-			else{
+			}else{
 			$fp = fopen($cnfUsers."/".$_POST["user"][0].".php", "r+");
 			rewind($fp);
 			fseek($fp,strlen($contenido)-2);
@@ -104,16 +106,16 @@ if($code=="blitzito"){*/
 			fclose($fp);
 			$enter=true;
 			}
-	}
-	else{
+	}else{
 	$fp = fopen($cnfUsers."/".$_POST["user"][0].".php", "w+");
 	fwrite($fp, '<?php '.$_POST["user"].'=0,0,0,'.$_POST["email"].','.time().','.$parent.',0,'.sha1($_POST["user"].$_POST["password"]).';?>');
-	chmod($cnfUsers."/".$_POST["user"][0].".php", 0600);
+	chmod($cnfUsers."/".$_POST["user"][0].".php", 0644);
 	fclose($fp);
 	$enter=true;
 	}
 	
-	if($enter==true){			
+	if($enter==true){	
+//filemtime() 	
 	$_SESSION['iduserx']=$_POST["user"];		
 	$_SESSION['level']=0;
 	echo "Bienvenido ".$_POST["user"].". ";		
@@ -138,24 +140,14 @@ header( "refresh:1;url=".$_SESSION['return']);
 	}
 	
     
- ?>
-  </section>
-</article>
-
-<?php
-/*}else{
-echo "Lo sentimos, actualmente sólo puedes registrarte en BlitzHive mediante invitación<br>";
-echo "Pide a tus amigos que te inviten o busca en la red invitaciones. <br>";
-echo "Muchas gracias. <br>";
-}*/
 ?>
-<footer>
-<?php
-
-include('footer.php');
-
-?>
-</footer>
+    </section>
+  </article>
+ <footer>
+	<?php
+	include('footer.php');
+	?>
+ </footer>
 </center>
 </body>
 </html>

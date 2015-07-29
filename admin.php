@@ -1,4 +1,5 @@
 <?php
+if (!isset($_SESSION)) { session_start(); }
 include('config.php');
 include('header.php');
 /*ini_set('display_startup_errors',1);

@@ -1,4 +1,5 @@
 <?php
+if (!isset($_SESSION)) { session_start(); }
 include('config.php');
 include('header.php');
 function fRemoveT($w)
@@ -142,6 +143,7 @@ if (isset($_POST['submitFile']))
               }
             else
               {
+				  
                 echo "Archivo invalido " . $_SESSION['image' . $xv] . "(" . $cnfExt . ")<br>";
                 if ($_FILES["file"]["size"][$key] >= $maxSize)
                   {
@@ -211,7 +213,7 @@ else if ($q == 0 || $q == 2)
     unset($_SESSION['image0']);
     unset($_SESSION['image1']);
     unset($_SESSION['image2']);
-    $e    = strip_tags($e, '<br><b><i><u><strike><s><a><img><iframe><div><code><pre><h1><h2><h3>');
+    $e    = strip_tags($e, '<br><b><i><u><strike><s><a><img><iframe><div><code><pre><h1><h2><h3><video>');
     $posA = strpos($e, "<iframe ", 0);
     while ($posA !== false)
       {

@@ -1,7 +1,7 @@
 <?php
+if (!isset($_SESSION)) { session_start(); }
 include_once('config.php');
 include_once('header.php');
-//session_start();
 $user="";
 $password="";
 if(isset($_GET["r"]))$_SESSION['return']=filter_var($_GET["r"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);

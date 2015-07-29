@@ -1,6 +1,6 @@
 <?php
 include("config.php");
-session_start();
+if (!isset($_SESSION)) { session_start(); }
 $r=$cnfHome;
 if(isset($_GET["r"]))$r=filter_var($_GET["r"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 unset($_SESSION['iduserx']);

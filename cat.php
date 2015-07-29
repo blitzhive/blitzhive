@@ -1,9 +1,11 @@
 <?php
+if (!isset($_SESSION)) { session_start(); }
 $blogMode = 0;
 if (basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]))
   {
     $blogMode = 1;
   }
+  
 $auxBlog = "/";
 $tr      = 1;
 if ($blogMode == 0)
@@ -79,6 +81,7 @@ if ($posVarCat !== false)
         $strCategoria = substr($strCategoria, 0, -1);
     $strCategoria = utf8_decode($strCategoria);
   }
+  
 if ($blogMode == 0)
   {
     if (($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0") || ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0"))
@@ -86,9 +89,11 @@ if ($blogMode == 0)
   }
 else
   {
-    if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
+	if (($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0") || ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0")  && !isset($_SESSION['iduserx']))
+    //if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
         include "cache.php";
   }
+  
 if ($blogMode == 0)
   {
     if ($cnfForumCacheTime != "" && $cnfForumCacheTime != "0" && !isset($_SESSION['iduserx']) && $posVarCat === false)
@@ -153,17 +158,32 @@ $forumSel .= '</select><input type="submit" name="submitMove" id="submitMove" va
 $strBoxPost = '<div id="divUplaod">';
 if (isset($_SESSION['image0']))
   {
-    $strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image0"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic0]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image0"] . '\',1)"/></b> ' . $lngIntoMes;
+	$extUp = pathinfo($_SESSION['image0'], PATHINFO_EXTENSION);
+	$posVarVid  = strpos("mp4,avi,mov,ogg,", $extUp.",");
+	$posVarFile  = strpos("zip,rar,pdf,doc,", $extUp.",");
+    if($posVarVid===false&&$posVarFile===false)$strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image0"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic0]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image0"] . '\',1)"/></b> ' . $lngIntoMes;
+	else if($posVarFile===false)$strBoxPost .= '<video class="vidUpload" src="' . $cnfHome . 'upload/' . $_SESSION["image0"] . '" controls>Not supported</video> Use <b><input type="button" value="[vid0]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image0"] . '\',2)"/></b> ' . $lngIntoMes;
+	else $strBoxPost .= '<b><u>'.$_SESSION["image0"].'</u></b>(↓) Use <b><input type="button" value="[file0]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image0"] . '\',3)"/></b> ' . $lngIntoMes;
   }
 $strBoxPost .= '<input type="file" name="file[]" id="file0"><br>';
 if (isset($_SESSION['image1']))
   {
-    $strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic1]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',1)"/></b> ' . $lngIntoMes;
+   $extUp = pathinfo($_SESSION['image1'], PATHINFO_EXTENSION);
+	$posVarVid  = strpos("mp4,avi,mov,ogg,", $extUp.",");
+	$posVarFile  = strpos("zip,rar,pdf,doc,", $extUp.",");
+    if($posVarVid===false&&$posVarFile===false)$strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic1]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',1)"/></b> ' . $lngIntoMes;
+	else if($posVarFile===false)$strBoxPost .= '<video class="vidUpload" src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" controls>Not supported</video> Use <b><input type="button" value="[vid1]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',2)"/></b> ' . $lngIntoMes;
+	else $strBoxPost .= '<b><u>'.$_SESSION["image1"].'</u></b>(↓) Use <b><input type="button" value="[file1]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',3)"/></b> ' . $lngIntoMes;
   }
 $strBoxPost .= '<input type="file" name="file[]" id="file1"><br>';
 if (isset($_SESSION['image2']))
   {
-    $strBoxPost .= '<img class="imgUpload" src="' . $cnfHome . 'upload/' . $_SESSION["image2"] . '" /> Use <b><input type="button" value="[pic2]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image2"] . '\',1)"/></b> ' . $lngIntoMes;
+    $extUp = pathinfo($_SESSION['image1'], PATHINFO_EXTENSION);
+	$posVarVid  = strpos("mp4,avi,mov,ogg,", $extUp.",");
+	$posVarFile  = strpos("zip,rar,pdf,doc,", $extUp.",");
+    if($posVarVid===false&&$posVarFile===false)$strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic2]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',1)"/></b> ' . $lngIntoMes;
+	else if($posVarFile===false)$strBoxPost .= '<video class="vidUpload" src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" controls>Not supported</video> Use <b><input type="button" value="[vid2]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',2)"/></b> ' . $lngIntoMes;
+	else $strBoxPost .= '<b><u>'.$_SESSION["image1"].'</u></b>(↓) Use <b><input type="button" value="[file2]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',3)"/></b> ' . $lngIntoMes;
   }
 $strBoxPost .= '<input style="float:left;" type="file" name="file[]" id="file2">
 <input type="submit" name="submitFile" id="submitFile" value="' . $lngUpload . '">
@@ -179,6 +199,7 @@ $strBoxPost .= '
 <input type="button" value="<h2>" onclick="addtag(\'h2\')"  style="width:30px; text-decoration:strike;" />
 <input type="button" value="<h3>" onclick="addtag(\'h3\')"  style="width:30px; text-decoration:strike;" />
 <input type="button" value="' . $lngImage . '" onclick="addtag(\'img\')"  />
+<input type="button" value="Video" onclick="addtag(\'video\')"  />
 <input type="button" value="' . $lngCode . '" onclick="addtag(\'code\')"  />
 <input id="linkUrl" style="width:16%;" type="text" value="' . $cnfHome . '" />
 <input type="button" value="Link" onclick="addtag(\'a\')"  />
@@ -644,7 +665,7 @@ else
 <?php
 if ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0" && $posVarCat !== false)
   {
-    $fakeArry = array();
+    $fakeArry = array();	
     $cache    = new SimpleCachePhp(__FILE__, $cnfCatCacheTime, 0, $fakeArry, "cachecat", $strCategoria);
   }
 if ($arrLinks != "")
@@ -959,7 +980,8 @@ else
     if (!file_exists($w . ".xml"))
       {
         $_SESSION['error'] = $w;
-        die(include("../404.php"));
+       if ($blogMode == 0)die(include("../404.php"));
+	   else die(include("404.php"));
       }
     $xml         = simplexml_load_file($w . ".xml");
     $t           = time();
@@ -1400,7 +1422,8 @@ if (isset($repuesta))
         echo $lngNotAllAns;
       }
   }
-include('../footer.php');
+if ($blogMode == 0)include('../footer.php');
+else include('footer.php');
 ?>
 </footer>
 </body>

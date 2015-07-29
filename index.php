@@ -1,4 +1,5 @@
 <?php
+if (!isset($_SESSION)) { session_start(); }
 include('config.php');
 include('header.php');
 $tr = 0;
@@ -99,7 +100,6 @@ echo $cnfHome . $cnfLogo;
 echo $cnfHeaderText;
 ?></h1>
 <?php
-//session_start();
 if (isset($_SESSION['iduserx']))
   {
     echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='logout.php?r=index.php'>¿Salir?</a>";
@@ -249,18 +249,20 @@ if (file_exists("i.xml"))
                   }
                 echo '<h2 class="h1Left"><a class="aGray" title="' . $lngToMes . '" href="' . str_replace("/", "/" . $strLink, $programado->t) . $strLinkEnd . '"/>' . $xml->p[0]->t . '</a></h2>';						
                 echo '<p class="pSubLine"><b>' . $xml->p[0]->u . '</b> <time class="entry-date" datetime="' . gmdate("Y-m-d G:i", (int) $xml->p[0]->a) . '">' . gmdate("Y-m-d G:i", (int) $xml->p[0]->a) . '</time></p>';
-									     $strTags = $xml->p[0]->g;
-                if ($strTags != "0" && $strTags != "")
-                  {
-                    echo '<div class="boxTags" ><a class="portadaLinkIndex" href="' . $cnfHome . $pathForumTotal . '"><b>' . $pathForumTotal . ':</b></a>';
-                    $strTags = explode(",", strtolower($strTags));
+				echo '<div class="boxTags" >';
+				echo '<a class="portadaLinkIndex" href="' . $cnfHome . $pathForumTotal . '"><b>' . $pathForumTotal . ':</b></a>';
+					$strTags = $xml->p[0]->g;
+                   if ($strTags != "0" && $strTags != "")
+                  { 
+					$strTags = explode(",", strtolower($strTags));
                     for ($xf = 0; $xf < count($strTags); $xf++)
                       {
                         if ($strTags[$xf] != "")
                             echo '<a  class="portadaLinkIndex"  href="' . $cnfHome . $pathForumTotal . '/' . $strLink . $cnfSubject . $strLinkCat . $strTags[$xf] . $strLinkEnd . '" title="' . $strTags[$xf] . '">' . $strTags[$xf] . '</a>';
                       }
+				  }
                     echo '</div>';
-                  }
+                  
                 echo '</header>';
                 echo '<section class="sectionPortada">';
                 if ($cnfNewShort == "")

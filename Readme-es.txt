@@ -1,3 +1,15 @@
+-=1.0.0.0 version=-
+Bugs Fixed:
+- Corregidos pequeños fallos en modo blog
+- Fallo corregido en usuarios sin credenciales
+- Fallo corregido para evitar respuestas anónimas
+- Ahora borrar y aprobar respuestas funciona correctamente
+
+Upgrades:
+- Código más legible para w.php,user.php,cat.php y index.php
+- Los tags se rellenan después de subir
+- El css ahora es más responsive
+
 Instalación manual del CMS Blitzhive
 **Alpha Version
 

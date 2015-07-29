@@ -1,3 +1,14 @@
+-=1.0.0.0 version=-
+Bugs Fixed:
+- Fixed a little bug in some blogs modes sites.
+- Fixed bug of user not registered
+- Fixed bug of annonymous anwser.
+- Now delete and aprove answer works perfectly from admin.php
+Upgrades:
+- More readable code of w.php,user.php,cat.php and index.php
+- Tags refill the input after upload
+- More responsive css
+
 Installation of CMS Blitzhive
 **Alpha Version
 

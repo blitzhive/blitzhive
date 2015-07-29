@@ -15,6 +15,7 @@ unset($_SESSION['emaila']);
 unset($_SESSION['parent']);
 unset($_SESSION['title']);
 unset($_SESSION['body']);
+unset($_SESSION['tag']);
 unset($_SESSION['mod']);
 unset($_SESSION['login']);
 unset($_SESSION['timeSec']);

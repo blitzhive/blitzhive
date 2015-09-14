@@ -89,12 +89,14 @@ while (false !== ($file = readdir($handle))) {
 		   $fileName=utf8_encode($fileName);
 		   $fileName=preg_replace("/\\s+/iu","",$fileName);
 		   //die($cnfHome.$s."/".$strLink.$fileName.$strLinkEnd);
-		  $xml=simplexml_load_file($s.'/'.$file);
+		  if($s!="")$xml=simplexml_load_file(utf8_encode($s.'/'.$file));
+		  else $xml=simplexml_load_file($file);
 			
 if($s!="")$auxS=$s."/";
 /*$rssLink="";
 if($s!="")$rssLink=str_replace("/", "/".$strLink, $fileName).$strLinkEnd;
 else $rssLink=$strLink.$fileName.$strLinkEnd;*/
+//die($s.'/'.$file."--->".$xml->p[0]->a."<--".$xml->p[0]->u);
 			?>
 <item>
 <title><?php echo utf8_encode($titleFile);?></title>
@@ -133,11 +135,10 @@ else{
 $titleFile=str_replace ("-"," ",substr($s,$posVar+1));
 $fileName=str_replace ("/".$strLink,"/".$strLink,$s.".xml");
 }
-//die($titleFile);
+if(substr($fileName, 0, 1)=='/')$fileName=substr($fileName, 1);
 $fileName=utf8_decode($fileName);
-//die($fileName);
 if(!file_exists($fileName)){
-
+	//die($fileName);
 $_SESSION['error']=$fileName;
 header( "refresh:0;url=".$cnfHome."/404.php");
 }

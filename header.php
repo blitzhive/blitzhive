@@ -23,13 +23,31 @@ function fCleanChar($cadena,$mod=0){
 }
 
 function fCleanSimple($cadena,$mod=0){	
-	$originales = ' ';
-	$modificadas ='-';
+	/*$originales = ' ';
+	$modificadas ='-';*/
+	$conv = array(" " => "-", "_T_" => "_t_");
 	$cadena = utf8_decode($cadena);
-    $cadena = strtr($cadena, $originales, $modificadas);   
-	$cadena = preg_replace("/[?¿!¡|*\\/:%+]/", "", $cadena);
+    $cadena = strtr($cadena,$conv);   
+	$cadena = preg_replace("/[#?¿!¡|*\\/:%+]/", "", $cadena);
 	return $cadena;
 }	
+
+function fReconvert($cadena,$mod=0){	
+	if($mod==0){
+	$conv = array("&#39;" => "'", "&#34;" => '"');
+	$cadena = strtr($cadena,$conv);  
+	//$cadena=addslashes($cadena); 	
+	}
+	else{	
+	$conv = array("&#39;" => "\\'");
+	$cadena = strtr($cadena,$conv); 
+	}
+	//else $cadena=addcslashes($cadena, "'");
+	//if($mod!=0)$cadena=addcslashes($cadena, "'");
+	//die($cadena);
+	return $cadena;
+}	
+
 
 
 function fProgramadas(){
@@ -41,11 +59,14 @@ foreach ($xmlP->h as $programado) {
 if((int)$programado->p<=(int)$ahora){
 rename($programado->t,str_replace("_T_","",$programado->t));
 unset($programado[0][0]);
+break;
 }
 }
 if(count($xmlP)==0)unlink("p.xml");
 else $xmlP->asXml("p.xml");
 }
+
+
 
 }
 
@@ -98,7 +119,7 @@ $email="";
 if($id==3)return $email;
 }
 //fProgramadas();
-
+if($cnfAutoPosting!="")fProgramadas();
 ?>
 <!DOCTYPE html>
 <html itemtype="http://schema.org/WebPage" lang="<?php echo $cnfLanguage;?>">

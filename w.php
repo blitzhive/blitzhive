@@ -50,14 +50,17 @@ if (isset($_POST['f']))
 $po = "0";
 if (isset($_POST['po']))
     $po = filter_var($_POST['po'], FILTER_SANITIZE_SPECIAL_CHARS); //portada
+$poimg = "0";
+if (isset($_POST['poimg']))
+    $poimg = filter_var($_POST['poimg'], FILTER_SANITIZE_SPECIAL_CHARS); //imagen portada
 $no = "0";
 if (isset($_POST['no']))
     $no = filter_var($_POST['no'], FILTER_SANITIZE_SPECIAL_CHARS); //notificacion
 $ti = 0;
 if (isset($_POST['ti']))
     $ti = filter_var($_POST['ti'], FILTER_SANITIZE_SPECIAL_CHARS); //tiempo-programar
-if (isset($_GET['w']))
-    $w = filter_var($_GET['w'], FILTER_SANITIZE_SPECIAL_CHARS); //FIleName
+/*if (isset($_GET['w']))
+    $w = filter_var($_GET['w'], FILTER_SANITIZE_SPECIAL_CHARS); //FIleName*/
 $e = "";
 if (isset($_POST['txtE']))
     $e = nl2br($_POST['txtE']); //body
@@ -67,6 +70,7 @@ if (isset($_GET['t']))
     $t = filter_var($_GET['t'], FILTER_SANITIZE_SPECIAL_CHARS); //path
 if (isset($_GET['y']))
     $y = filter_var($_GET['y'], FILTER_SANITIZE_SPECIAL_CHARS);
+//echo $_POST['w'];
 if (isset($_POST['w']))
   {
     $_POST['w'] = preg_replace("/&/", "ampersand", $_POST['w']);
@@ -77,93 +81,19 @@ if (isset($_POST['w']))
     $w = filter_var($_GET['w'], FILTER_SANITIZE_SPECIAL_CHARS); //title by get
 
   }
+  
 $secForum = "";
 if ($q == 4 || $q == 6)
   {
     $pA       = strpos($w, "/", 0);
     $secForum = substr(utf8_decode($w), 0, $pA);
   }
-if (isset($_POST['submitFile']))
+
+if ($q == 0 || $q == 2)
   {
-    if ($q != 2)
-      {
-        if ($w != "")
-          {
-            $_SESSION['title'] = $w;
-          }
-        if ($e != "")
-          {
-            $_SESSION['body'] = $e;
-          }
-        if ($u != "")
-          {
-            $_SESSION['tag'] = $u;
-          }
-      }
-    else
-      {
-        $_SESSION['answer'] = $e;
-      }
-    $xv = 0;
-    foreach ($_FILES['file']['tmp_name'] as $key => $tmp_name)
-      {
-        if ($_FILES["file"]["name"][$key] != "")
-          {
-            $temp      = explode(".", $_FILES["file"]["name"][$key]);
-            $extension = end($temp);
-            $maxSize   = intval($cnfMax);
-            if (($_FILES["file"]["size"][$key] < $maxSize) && (strpos($cnfExt, $extension, 0) !== false))
-              {
-                if ($_FILES["file"]["error"][$key] > 0)
-                  {
-                    echo "Error código: " . $_FILES["file"]["error"][$key] . "<br>";
-                  }
-                else
-                  {
-                    $originales                   = ' ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿŔŕ';
-                    $modificadas                  = '-aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyybyRr';
-                    $_FILES["file"]["name"][$key] = preg_replace("/[?¿!¡|*\\/:]/", "", $_FILES["file"]["name"][$key]);
-                    $_FILES["file"]["name"][$key] = utf8_decode($_FILES["file"]["name"][$key]);
-                    $_FILES["file"]["name"][$key] = strtr($_FILES["file"]["name"][$key], utf8_decode($originales), $modificadas);
-                    $xc                           = 0;
-                    if (!is_dir($cnfUploads))
-                        mkdir($cnfUploads, 0777, true);
-                    while (file_exists($cnfUploads . "/" . $_FILES["file"]["name"][$key]))
-                      {
-                        $_FILES["file"]["name"][$key] = $xc . "-" . $_FILES["file"]["name"][$key];
-                        $xc++;
-                      }
-                    if (move_uploaded_file($_FILES["file"]["tmp_name"][$key], $cnfUploads . "/" . $_FILES["file"]["name"][$key]))
-                      {
-                        $_SESSION['image' . $xv] = $_FILES["file"]["name"][$key];
-                        echo "Archivo subido :) " . $_SESSION['image' . $xv] . "<br>";
-                      }
-                    $xv++;
-                  }
-              }
-            else
-              {
-				  
-                echo "Archivo invalido " . $_SESSION['image' . $xv] . "(" . $cnfExt . ")<br>";
-                if ($_FILES["file"]["size"][$key] >= $maxSize)
-                  {
-                    echo $lngMaxSize . ": " . $maxSize;
-                  }
-                else if (strpos($cnfExt, $extension, 0) !== false)
-                  {
-                    echo $lngExt . ": " . $cnfExt . "<br>";
-                  }
-              }
-          }
-      }
-    if ($q != 2)
-        die(header("refresh:2;url=" . $cnfHome . $t));
-    else
-        die(header("refresh:2;url=" . $cnfHome . str_replace("/", "/" . $strLink, utf8_decode($_GET['w'])) . $strLinkEnd . "#answer"));
-    //XSS
-  }
-else if ($q == 0 || $q == 2)
-  {
+	  $_SESSION['body']=$e;
+	  $_SESSION['title']=$w;
+	  $_SESSION['tag']=$u;
     if (strlen($w) < 3)
       {
         echo "<h3>" . $lngTitle3 . " :)</h3>";
@@ -177,9 +107,12 @@ else if ($q == 0 || $q == 2)
     $folderName = "";
     $fileName   = $w;
     $strSubName = "";
-    if ($ti != 0)
-        $strSubName = "_T_";
-    $fileName = fCleanSimple($fileName . $strSubName, 0);
+    if ($ti != 0)$strSubName = "_T_";	
+    $fileName = fCleanSimple($fileName, 0);
+	$fileName.=$strSubName;
+	
+	
+	
     $xml      = 0;
     $last15   = 0;
     if ($q == 0)
@@ -198,7 +131,7 @@ else if ($q == 0 || $q == 2)
     if ($q == 0)
         $xml_document = $xml->createElement("d");
     else
-        $xml_document = $xml->getElementsByTagName("d")->item(0);
+    $xml_document = $xml->getElementsByTagName("d")->item(0);
     $xml_post  = $xml->createElement("p");
     $xml_body  = $xml->createElement("b");
     $xml_user  = $xml->createElement("u");
@@ -213,7 +146,11 @@ else if ($q == 0 || $q == 2)
     unset($_SESSION['image0']);
     unset($_SESSION['image1']);
     unset($_SESSION['image2']);
-    $e    = strip_tags($e, '<br><b><i><u><strike><s><a><img><iframe><div><code><pre><h1><h2><h3><video>');
+
+	
+	
+    $e    = strip_tags($e, '<br><b><i><u><strike><s><a><img><iframe><div><code><pre><h1><h2><h3><video><adsense>');
+	if($cnfAdsense!="")$e = preg_replace("/<adsense><\/adsense>/", $cnfAdsense, $e);
     $posA = strpos($e, "<iframe ", 0);
     while ($posA !== false)
       {
@@ -265,6 +202,7 @@ else if ($q == 0 || $q == 2)
             $u          = str_replace(", ", ",", $u);
             $u          = str_replace(" ,", ",", $u);
             $u          = str_replace(",,", ",", $u);
+			$u          = str_replace(" ", "-", $u);
             $strSubName = str_replace(",", "-", $u);
             //die("-->".$u."<--");
           }
@@ -371,9 +309,6 @@ else if ($q == 0 || $q == 2)
           {
             $xml->save($fileName . ".xml");
           }
-        unset($_SESSION['title']);
-        unset($_SESSION['body']);
-        unset($_SESSION['tag']);
         if ($f != "0")
           {
             $xml2           = new DOMDocument();
@@ -434,8 +369,12 @@ else if ($q == 0 || $q == 2)
               }
             $xml_title2 = $xml2->createElement("t");
             $xml_title2->appendChild($xml2->createTextNode($t . "/" . utf8_encode($fileName)));
+			$xml_img = $xml2->createElement("i");
+			if($poimg=="")$poimg="0";
+			$xml_img->appendChild($xml2->createTextNode($poimg));
             $xml_hijo = $xml2->createElement("h");
             $xml_hijo->appendChild($xml_title2);
+			$xml_hijo->appendChild($xml_img);			
             if ($xml_document2->childNodes->length > 1)
               {
                 $items = $xml2->getElementsByTagName('h');
@@ -450,14 +389,22 @@ else if ($q == 0 || $q == 2)
               }
             $xml2->save("i.xml");
           }
+		  
+		unset($_SESSION['answer']);
+		unset($_SESSION['body']);
+		unset($_SESSION['title']);
+		unset($_SESSION['tag']);
+		
         if (str_word_count($e, 0) > 199)
           {
-            header("refresh:2;url=" . $cnfHome . utf8_decode($_GET['t']) . "/" . $strLink . str_replace(" ", "-", html_entity_decode($fileName)) . $strLinkEnd);
+            header("refresh:2;url=" . $cnfHome . utf8_decode($_GET['t']) . "/" . $strLink . html_entity_decode(fReconvert($fileName),0) . $strLinkEnd);
             die($lngSwarnVote . ' :)');
           }
         else
           {
-            die(header("refresh:0;url=" . $cnfHome . utf8_decode($_GET['t']) . "/" . $strLink . str_replace(" ", "-", html_entity_decode($fileName))) . $strLinkEnd);
+		die(header("refresh:0;url=" . $cnfHome . utf8_decode($_GET['t']) . "/" . $strLink . html_entity_decode(fReconvert($fileName),0) . $strLinkEnd));
+		
+
           }
       }
     else if ($q == 2)
@@ -481,7 +428,10 @@ else if ($q == 0 || $q == 2)
               }
           }
         unset($_SESSION['answer']);
-        $xml->save($w . ".xml");
+		unset($_SESSION['body']);
+		unset($_SESSION['title']);
+		unset($_SESSION['tag']);
+        $xml->save($w . ".xml");		
         $ifBlogMOde = strpos($_GET['w'], '/' . $strLink);
         if ($ifBlogMOde === false)
             die(header("refresh:0;url=" . str_replace("/", "/" . $strLink, utf8_decode($_GET['w'])) . $strLinkEnd . "#" . $t));
@@ -545,7 +495,9 @@ else if ($q == 3)
   }
 else if ($q == 4)
   {
+	  //die("aaa");
     $w = utf8_decode($w);
+	//die($w . ".xml");
     if (!file_exists($w . ".xml"))
         die($lngTheMes . " " . $w . " " . $lngNotExist);
     $xml         = simplexml_load_file($w . ".xml");
@@ -557,13 +509,34 @@ else if ($q == 4)
         $t = intval($t);
         if ($t == 0)
           {
+			  if (file_exists("i.xml"))
+			  {
+				$xmlP = simplexml_load_file("i.xml");
+				foreach ($xmlP->h as $programado)
+				  {					
+				  //echo $programado->t."==". $w."<br>";
+					if ($programado->t == $w)
+					  {
+						//unlink($w.".xml");
+						unset($programado[0][0]);
+						break;
+					  }
+				  }
+				if (count($xmlP) == 0)
+					unlink("i.xml");
+				else
+					$xmlP->asXml("i.xml");
+			  }
+			  			  
             if ($y == 1)
-                fRemoveT($w);
+				fRemoveT($w);
             unlink($w . ".xml");
             unset($_SESSION['allowdelete']);
             $posA = strpos($_GET['w'], "/", 0);
             echo $lngDelMes;
             die(header("refresh:1;url=" . $cnfHome . "/" . substr(utf8_decode($_GET['w']), 0, $posA)));
+			
+			
           }
         else
           {
@@ -574,6 +547,8 @@ else if ($q == 4)
             die(header("refresh:1;url=" . str_replace("/", "/" . $strLink, utf8_decode($_GET['w'])) . $strLinkEnd . "#" . $t));
           }
       }
+	  
+	
   }
 else if ($q == 5)
   {
@@ -697,19 +672,40 @@ else if ($q == 6 && ($_SESSION['iduserx'] == $cnfAdm || $_SESSION['mod'] == $sec
         $folderDestino = $folderDestino . (string) $rna;
         $rna++;
       }
+	  
+	  if (file_exists("i.xml"))
+			  {
+				$xmlP = simplexml_load_file("i.xml");
+				foreach ($xmlP->h as $programado)
+				  {					
+				  //echo $programado->t."==". $w."<br>";
+					if ($programado->t == $w)
+					  {
+						//unlink($w.".xml");
+						unset($programado[0][0]);
+						break;
+					  }
+				  }
+				if (count($xmlP) == 0)
+					unlink("i.xml");
+				else
+					$xmlP->asXml("i.xml");
+			  }
+	  
     if (!copy($folderOrigen, $folderDestino . ".xml"))
         die($lngNotMov . " " . $w);
     if ($y == 1)
         fRemoveT($w);
     $xml          = simplexml_load_file($w . ".xml");
     $xml->p[0]->b = '
-<h1>301 ' . $lngMoved . '</h1>
-<meta http-equiv="refresh" content="2;url=../' . $_POST['selMove'] . '/' . $strLink . substr($w, $posA + 1) . $strLinkEnd . '">
-<p>' . $lngMesMov . ' <a href="../' . $_POST['selMove'] . '/' . $strLink . substr($w, $posA + 1) . $strLinkEnd . '">' . $lngHere . '</a>.</p>';
+	<h1>301 ' . $lngMoved . '</h1>
+	<meta http-equiv="refresh" content="2;url='.$cnfHome. $_POST['selMove'] . '/' . $strLink . substr($w, $posA + 1) . $strLinkEnd . '">
+	<p>' . $lngMesMov . ' <a href="'.$cnfHome . $_POST['selMove'] . '/' . $strLink . substr($w, $posA + 1) . $strLinkEnd . '"><h2>' . $lngHere . '</h2></a>.</p>';
     $xml->asXml($w . ".xml");
+
     header("refresh:2;url=" . $cnfHome . $_POST['selMove'] . '/' . $strLink . substr($w, $posA + 1) . $strLinkEnd);
     if ($rna > 0)
-        echo $lngFileSameName . " " . $rna . " " . $lngAtEnd . "<br>";
+    echo $lngFileSameName . " " . $rna . " " . $lngAtEnd . "<br>";
     die($lngMoved2 . " " . $w . " " . $lngRed . " " . $_POST['selMove'] . substr($w, $posA));
   }
 else if ($q == 7 && $y != $_SESSION['iduserx'])

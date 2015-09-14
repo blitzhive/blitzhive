@@ -1,4 +1,6 @@
 <?php
+if (!isset($_SESSION)) { session_start(); }
+$_SESSION['return']=$_SERVER["REQUEST_URI"];
 include('config.php');
 include('header.php');
 $tr = 0;
@@ -253,7 +255,9 @@ if (file_exists($cnfUsers . "/" . $user[0] . ".php"))
         $strTitle .= "<label>" . $lngParent . ":</label>" . $strPadre . "<br>";
         $strTitle .= "<label>" . $lngDes . ":</label>" . $strDes . "<br>";
         //&&intval($_SESSION['level'])>60
-        if (isset($_SESSION['iduserx']) && $_SESSION['iduserx'] != $user)
+		//if (intval($_SESSION['level']) < intval($cnfVoteLevel))
+		if($cnfEmailLevel=="")$cnfEmailLevel=0;
+        if (isset($_SESSION['iduserx']) && $_SESSION['iduserx'] != $user && intval($_SESSION['level'])>=$cnfEmailLevel)
           {
             $strTitle .= '<form id="form1" name="form1" method="post" action="user.php?user=' . $user . '"  enctype="multipart/form-data">	
 	<input type="text" name="contact" id="contact" value="Hola ' . $lngIam . ' ' . $_SESSION['iduserx'] . '" /><input type="submit" name="submitEmail" id="submitEmail" value="' . $lngSendEmail . '" /></form>' . $strMailCheck;
@@ -377,7 +381,8 @@ echo $cnfHeaderText;
 //session_start();
 if (isset($_SESSION['iduserx']))
   {
-    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='" . $cnfHome . "logout.php?r=index.php'>¿Salir?</a>";
+	$_SESSION['return']="index.php";
+    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='" . $cnfHome . "logout.php'>¿Salir?</a>";
     if ($_SESSION['iduserx'] == $cnfAdm)
       {
         echo "<a class='aLogin' href='" . $cnfHome . "admin.php'>" . $lngAdm . "</a>";
@@ -385,8 +390,8 @@ if (isset($_SESSION['iduserx']))
   }
 else
   {
-    echo "<a class='aLogin' href='" . $cnfHome . "login.php?r=" . $_SERVER["REQUEST_URI"] . "'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
-    echo "<a class='aLogin' href='" . $cnfHome . "register.php?r=" . $_SERVER["REQUEST_URI"] . "'>" . $lngReg . "</a>";
+    echo "<a class='aLogin' href='" . $cnfHome . "login.php'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
+    echo "<a class='aLogin' href='" . $cnfHome . "register.php'>" . $lngReg . "</a>";
   }
 ?>
 </div>
@@ -408,6 +413,18 @@ if ($cnfytChannel != "")
   {
     echo '<a class="portadaLinkSocial" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />Youtube</a>';
   }
+  if ($cnfPinterestPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />Pinterest</a>';
+  }  
+if ($cnfInstagramPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />Instagram</a>';
+  } 
+if ($cnfLinkedinPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />Linkedin</a>';
+  }  
 if ($cnfXGoogle != "")
   {
     echo '<input type="text" onKeyUp="fSearch0(event,0,\'' . $cnfHome . '\')" id="googleSearch" /><input id="btgoogleSearch" type="button" value="' . $lngSearch . '" onclick="fSearch(0,\'' . $cnfHome . '\')"	/>';

@@ -4,15 +4,13 @@ include_once('config.php');
 include_once('header.php');
 $user="";
 $password="";
-if(isset($_GET["r"]))$_SESSION['return']=filter_var($_GET["r"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 if(isset($_SESSION['iduserx']))
 {
-echo "<h1> ".$lngHi." ".$_SESSION['iduserx']."</h1>. ".$lngConnected."<a href='logout.php?r=".$_SESSION['return']."'>".$lngLogOut."</a>";
+echo "<h1> ".$lngHi." ".$_SESSION['iduserx']."</h1>. ".$lngConnected."<a href='logout.php'>".$lngLogOut."</a>";
 }else if(isset($_GET["recover"])){
 die('<h1>'.$lngRecoverPass.'</h1><form id="form1" name="form1" method="post" action="login.php"><br>'.$lngUserName.':<input id="recover" name="recover" type="text" onclick="this.value=\'\'" onchange="submit.value=\'enviar\'" placeholder="'.$lngName.'" value="'.$lngName.'"/><input type="submit" name="submit" id="submit" value="'.$lngEnter.'" /><br></form>');
 }else if(isset($_POST["recover"])&&$_POST["recover"]!=""){
-
 if (file_exists($cnfUsers."/".$_POST["recover"][0].".php")){
 	  ini_set('memory_limit', '-1');
 		
@@ -71,7 +69,7 @@ die(header( "refresh:2;"));
 
 
 if(isset($_POST["user"])&&isset($_POST["password"])){
-  $user = $_POST["user"];
+  $user = strtolower($_POST["user"]);
   $password = $_POST["password"];
   }
 if($user!=""&&$password!=""){

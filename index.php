@@ -1,13 +1,14 @@
 <?php
 if (!isset($_SESSION)) { session_start(); }
+$_SESSION['return']=$_SERVER["REQUEST_URI"];
 include('config.php');
 include('header.php');
 $tr = 0;
 if (isset($_GET['c']))
   {
     $_SESSION['cookieAdv'] = 1;
-    ;
-    die(header("refresh:0;url=" . filter_var($_GET['r'], FILTER_SANITIZE_SPECIAL_CHARS)));
+    //die(fReconvert($_GET['r']);
+    die(header("refresh:0;url=" . $_GET['r']));
   }
 if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
   {
@@ -102,7 +103,8 @@ echo $cnfHeaderText;
 <?php
 if (isset($_SESSION['iduserx']))
   {
-    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='logout.php?r=index.php'>¿Salir?</a>";
+	 $_SESSION['return']="index.php";
+    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='logout.php'>¿Salir?</a>";
     if ($_SESSION['iduserx'] == $cnfAdm)
       {
         echo "<a class='aLogin' href='" . $cnfHome . "admin.php'>" . $lngAdm . "</a>";
@@ -110,8 +112,8 @@ if (isset($_SESSION['iduserx']))
   }
 else
   {
-    echo "<a class='aLogin' href='login.php?r=" . $_SERVER["REQUEST_URI"] . "'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
-    echo "<a class='aLogin' href='register.php?r=" . $_SERVER["REQUEST_URI"] . "'>" . $lngReg . "</a>";
+    echo "<a class='aLogin' href='login.php'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
+    echo "<a class='aLogin' href='register.php'>" . $lngReg . "</a>";
   }
 if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
   {
@@ -137,6 +139,19 @@ if ($cnfytChannel != "")
   {
     echo '<a class="portadaLinkSocial" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />Youtube</a>';
   }
+if ($cnfPinterestPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />Pinterest</a>';
+  }  
+if ($cnfInstagramPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />Instagram</a>';
+  } 
+if ($cnfLinkedinPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />Linkedin</a>';
+  }   
+  
 if ($cnfXGoogle != "")
   {
     echo '<input type="text" onKeyUp="fSearch0(event,0,\'' . $cnfHome . '\')" id="googleSearch" /><input id="btgoogleSearch" type="button" value="' . $lngSearch . '" onclick="fSearch(0,\'' . $cnfHome . '\')"	/>';
@@ -228,8 +243,11 @@ if (file_exists("i.xml"))
     echo '<br style="clear:both;">';
     foreach ($xmlP->h as $programado)
       {
-        if ($rr >= $_GET['p'] && $rrr < $cnfNewsFeed)
+		$posVarTag = strrpos($programado->t, "_T_");
+        //if ($posVarTag === false
+        if ($posVarTag === false &&  $rr >= $_GET['p'] && $rrr < $cnfNewsFeed)
           {
+			
             $rrr++;
             $posVar         = strpos($programado->t, "/");
             $pathForumTotal = substr($programado->t, 0, $posVar);
@@ -246,7 +264,11 @@ if (file_exists("i.xml"))
                   {
                     echo '<article class="boxPostPortada2" id="0"><header class="headerIndex">';
                     $class = 0;
-                  }
+                  }	
+				  $imgPortada="0";
+				  if(isset($programado->i))$imgPortada=$programado->i;
+				  //echo $lol;
+				 if($imgPortada!="0")echo '<a  title="' . $lngToMes . '" href="' . str_replace("/", "/" . $strLink, $programado->t) . $strLinkEnd . '"/><img  class="imgPortada" src="' . $imgPortada. '" /></a>';						
                 echo '<h2 class="h1Left"><a class="aGray" title="' . $lngToMes . '" href="' . str_replace("/", "/" . $strLink, $programado->t) . $strLinkEnd . '"/>' . $xml->p[0]->t . '</a></h2>';						
                 echo '<p class="pSubLine"><b>' . $xml->p[0]->u . '</b> <time class="entry-date" datetime="' . gmdate("Y-m-d G:i", (int) $xml->p[0]->a) . '">' . gmdate("Y-m-d G:i", (int) $xml->p[0]->a) . '</time></p>';
 				echo '<div class="boxTags" >';
@@ -265,10 +287,29 @@ if (file_exists("i.xml"))
                   
                 echo '</header>';
                 echo '<section class="sectionPortada">';
-                if ($cnfNewShort == "")
+                if ($cnfNewShort == ""){
                     echo '<p>' . $xml->p[0]->b . '</p>';
-                else
-                    echo '<p>' . substr($xml->p[0]->b, 0, intval($cnfNewShort)) . '</p><center><a style="color:#848484;" href="' . str_replace("/", "/" . $strLink, $programado->t) . $strLinkEnd . '">...' . $lngToRead . '</a></center>';
+				}
+                else	
+				{
+					$count1=substr_count(substr($xml->p[0]->b, 0, intval($cnfNewShort)), '<'); // 2
+					$count2=substr_count(substr($xml->p[0]->b, 0, intval($cnfNewShort)), '>'); // 2
+					//echo $count1."-".$count2;
+					$sumCount=$count1-$count2;
+					
+					if($sumCount==0){	
+					echo '<p>' . substr($xml->p[0]->b, 0, intval($cnfNewShort)) . '</p><center><a style="color:#848484;" href="' . str_replace("/", "/" . $strLink, $programado->t) . $strLinkEnd . '">...' . $lngToRead . '</a></center>';	
+					}else{
+					$addTagFin="";	
+					//echo $sumCount;
+						for($re=0;$re<$sumCount;$re++)$addTagFin.="\">";
+						echo '<p>' . substr($xml->p[0]->b, 0, intval($cnfNewShort)).$addTagFin.'</p><center><a style="color:#848484;" href="' . str_replace("/", "/" . $strLink, $programado->t) . $strLinkEnd . '">...' . $lngToRead . '</a></center>';		
+
+					}
+					
+					//else  echo '<p>' . substr($xml->p[0]->b, 0, intval($cnfNewShort)) . '</p><center><a style="color:#848484;" href="' . str_replace("/", "/" . $strLink, $programado->t) . $strLinkEnd . '">...' . $lngToRead . '</a></center>';	
+
+				}	
                 echo '</section>';          
 				
 				

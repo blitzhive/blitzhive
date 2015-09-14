@@ -1,14 +1,11 @@
 <?php
 include("config.php");
+include('header.php');
 if (!isset($_SESSION)) { session_start(); }
 $r=$cnfHome;
-if(isset($_GET["r"]))$r=filter_var($_GET["r"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 unset($_SESSION['iduserx']);
-unset($_SESSION['image0']);
-unset($_SESSION['image1']);
-unset($_SESSION['image2']);
+unset($_SESSION['uploadedText']);
 unset($_SESSION['answer']);
-unset($_SESSION['return']);
 unset($_SESSION['error']);
 unset($_SESSION['allowdelete']);
 unset($_SESSION['emaila']);
@@ -30,7 +27,8 @@ unset($_COOKIE['iduserx']);
 setcookie('iduserx', null, -1, '/');
 setcookie('iduserx');
 }
+echo "<h1>Bye! :_(</h1>";
+header( "refresh:2;url=".$_SESSION['return']);
 session_unset();
 session_destroy();
-header( "refresh:0;url=".$r );
 ?>

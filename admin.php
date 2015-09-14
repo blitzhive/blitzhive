@@ -16,14 +16,63 @@ $file      = 'config.php';
 $contenido = htmlentities(file_get_contents('config.php'));
 function fUpdate($contenido, $confStr, $newStr)
   {
-    $posA      = strpos($contenido, $confStr, 0);
+	  $newStr=addslashes($newStr);
+	  
+    $posA      = strpos($contenido, $confStr, 0);		
+	if($posA!==false)
+	{	
     $posC      = strpos($contenido, "'", $posA);
     $posB      = strpos($contenido, "'", $posC + 1);
     $len       = $posB - $posC;
     $strNeww   = substr($contenido, $posC + 1, $len - 1);
-    $contenido = substr_replace($contenido, $newStr, $posC + 1, $len - 1);
+	$contenido = substr_replace($contenido, $newStr, $posC + 1, $len - 1);
+  }else{
+	  echo "<h4>We just created a new variable named: </h4>".$confStr."<br>";
+	  $posA      = strpos($contenido, "\$cnfHome", 0);
+	$contenido = substr_replace($contenido, "$".$confStr."='".$newStr."';\n", $posA, 0);
+  }
     return $contenido;
   }
+$errorReport=0;
+ function checkError($fileCheck,$tipo){ 
+ 
+ 	if($fileCheck!=""){
+		if(is_dir($fileCheck)){
+			//echo decoct(fileperms($cnfUploads) & 0777);
+			if(decoct(fileperms($fileCheck) & 0755)>=755){
+				//echo $cnfUploads "";
+			}else{
+			$errorReport=1;	
+				echo "No permissions in ".$cnfUploads." we try to add its... <br>";
+				if (chmod($fileCheck, 0755))echo "<h4 class='h4Good'>We just added permissions to ".$fileCheck."! :)</h4><br>";
+				else echo "<h4 class='h4Bad'>We cant add permissions to ".$fileCheck." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+			}
+		}else{
+			$errorReport=1;
+				echo $cnfUploads." is not created or is not a folder we try to create it...<br>";	
+				if(mkdir($fileCheck, 0755, true))echo "<h4 class='h4Good'>we just made ".$fileCheck." ! :)</h4><br>";	
+				else echo "<h4 class='h4Bad'>We cant create the ".$fileCheck." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+		}
+	}else if($tipo==1){
+		$errorReport=1;
+		echo "<h4 class='h4Bad'>Can't find an upload folder. Please fill in upload field.</h4><br>";
+	}else if($tipo==2){
+		$errorReport=1;
+		echo "<h4 class='h4Bad'>Can't find an users folder. Please fill in users field.</h4><br>";
+	} 
+ }
+if(isset($_POST['submitEmail'])){
+$to      = $_POST['emailTo'];
+$subject    = $_POST['emailSubject'];
+$mensaje   = $_POST['emailBody'];
+$header = 'From: '.$cnfEmail . "\r\n" .
+    'Reply-To: '.$cnfEmail . "\r\n" .
+    'X-Mailer: PHP/' . phpversion();
+
+mail($to, $subject, $mensaje, $header);
+echo "<h3>Mensaje enviado a ".$_POST['emailTo']."</h3>";
+}  
+  
 if (isset($_POST['submitFileCss']) || isset($_POST['submitFileLogo']) || isset($_POST['submitFileFav']) || isset($_POST['submitFileJava']))
   {
     $uplFile = "";
@@ -80,11 +129,11 @@ else if (isset($_POST['nameForum']) && $_POST['nameForum'] != "")
       {
         if (!chmod($foroLimpio, 0777))
           {
-            echo 'Foro ' . $_POST['nameForum'] . $lngNotGrant;
+            echo 'Foro ' . $_POST['nameForum'] ." ". $lngNotGrant;
           }
         else
           {
-            echo 'Foro ' . $_POST['nameForum'] . $lngCreated;
+            echo 'Foro ' . $_POST['nameForum'] ." ". $lngCreated;
             $modSec = "0";
             if (isset($_POST['modForum']) && $_POST['modForum'] != "")
                 $modSec = $_POST['modForum'];
@@ -139,7 +188,7 @@ else if (isset($_GET['aprove']))
                 rename($programado->t, str_replace("_T_", "", $programado->t));
                 //die($programado->t.".xml");
                 unset($programado[0][0]);
-                break;
+				 break;
               }
           }
         if (count($xmlP) == 0)
@@ -147,6 +196,25 @@ else if (isset($_GET['aprove']))
         else
             $xmlP->asXml("p.xml");
       }
+if (file_exists("i.xml")){
+//die("existe")  ;
+$xmlI = simplexml_load_file("i.xml");
+foreach ($xmlI->h as $programado)
+  {							
+	if ($programado->t == $_GET['aprove'])
+	  {
+
+	$programado->t = str_replace("_T_", "", $programado->t);
+//	die($programado->t);
+		break;
+	  }
+  }
+if (count($xmlI) == 0)
+	unlink("i.xml");
+else
+	$xmlI->asXml("i.xml");
+}
+	  
   }
 else if (isset($_GET['unaprove']))
   {
@@ -158,9 +226,9 @@ else if (isset($_GET['unaprove']))
             //echo $programado->t."==".$_GET['unaprove'];
             if ($programado->t == $_GET['unaprove'])
               {
-                unlink($programado->t);
+                unlink($programado->t.".xml");
                 unset($programado[0][0]);
-                break;
+				break;
               }
           }
         if (count($xmlP) == 0)
@@ -168,7 +236,52 @@ else if (isset($_GET['unaprove']))
         else
             $xmlP->asXml("p.xml");
       }
+	  
+	  
+	  if (file_exists("i.xml")){
+//die("existe");
+$xmlI = simplexml_load_file("i.xml");
+foreach ($xmlI->h as $programado)
+  {							
+	if ($programado->t == $_GET['unaprove'])
+	  {
+		  //die($programado[0][0]);
+	//unlink($programado->t.".xml");
+	unset($programado[0][0]);
+	
+
+		break;
+	  }
   }
+if (count($xmlI) == 0)
+	unlink("i.xml");
+else
+	$xmlI->asXml("i.xml");
+							}
+	  
+	  
+  }
+ else if (isset($_GET['unaprovei']))
+  {
+    if (file_exists("i.xml"))
+      {
+        $xmlP = simplexml_load_file("i.xml");
+        foreach ($xmlP->h as $programado)
+          {
+            //echo $programado->t."==".$_GET['unaprove'];
+            if ($programado->t == $_GET['unaprovei'])
+              {
+                unlink($programado->t.".xml");
+                unset($programado[0][0]);
+                break;
+              }
+          }
+        if (count($xmlP) == 0)
+            unlink("i.xml");
+        else
+            $xmlP->asXml("i.xml");
+      }
+  }   
 else if (isset($_GET['aprovea']))
   {
     if (file_exists("m.xml"))
@@ -326,8 +439,37 @@ else if (isset($_POST['urlLink']))
     $cnfXGoogle="";*/
     /*if(isset($_POST['cnfHome']))$cnfHomeXX=filter_var($_POST['cnfHome'], FILTER_SANITIZE_URL);
     echo $cnfHomeXX."--".$cnfHome;
-    if(isset($_POST['cnfUsers']))$cnfUsers=filter_var($_POST['cnfUsers'], FILTER_SANITIZE_URL);
-    if(isset($_POST['cnfUploads']))$cnfUploads=filter_var($_POST['cnfUploads'], FILTER_SANITIZE_URL);*/
+    if(isset($_POST['cnfUsers']))$cnfUsers=filter_var($_POST['cnfUsers'], FILTER_SANITIZE_URL);*/
+    if(isset($_POST['cnfUploads']))$cnfUploads=filter_var($_POST['cnfUploads'], FILTER_SANITIZE_URL);
+	if(isset($_POST['cnfUploadsImage']))$cnfUploadsImage=filter_var($_POST['cnfUploadsImage'], FILTER_SANITIZE_URL);
+	if(isset($_POST['cnfUploadsVideo']))$cnfUploadsVideo=filter_var($_POST['cnfUploadsVideo'], FILTER_SANITIZE_URL);
+	if(isset($_POST['cnfUploadsAudio']))$cnfUploadsAudio=filter_var($_POST['cnfUploadsAudio'], FILTER_SANITIZE_URL);
+	if(isset($_POST['cnfUploadsFile']))$cnfUploadsFile=filter_var($_POST['cnfUploadsFile'], FILTER_SANITIZE_URL);
+	
+	/**
+	*Dir maker
+	**/
+	if($cnfUploads!=""&&!is_dir($cnfUploads)){
+		if(mkdir($cnfUploads, 0755, true))echo "<h4 class='h4Good'>we just made ".$cnfUploads." ! :)</h4><br>";	
+		else echo "<h4 class='h4Bad'>We cant create the ".$cnfUploads." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+	}
+	if($cnfUploadsImage!=""&&!is_dir($cnfUploadsImage)){
+		if(mkdir($cnfUploadsImage, 0755, true))echo "<h4 class='h4Good'>we just made ".$cnfUploadsImage." ! :)</h4><br>";	
+		else echo "<h4 class='h4Bad'>We cant create the ".$cnfUploadsImage." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+	}
+	if($cnfUploadsVideo!=""&&!is_dir($cnfUploadsVideo)){
+		if(mkdir($cnfUploadsVideo, 0755, true))echo "<h4 class='h4Good'>we just made ".$cnfUploadsVideo." ! :)</h4><br>";	
+		else echo "<h4 class='h4Bad'>We cant create the ".$cnfUploadsVideo." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+	}
+	if($cnfUploadsAudio!=""&&!is_dir($cnfUploadsAudio)){
+		if(mkdir($cnfUploadsAudio, 0755, true))echo "<h4 class='h4Good'>we just maded ".$cnfUploadsAudio." ! :)</h4><br>";	
+		else echo "<h4 class='h4Bad'>We cant create the ".$cnfUploadsAudio." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+	}
+	if($cnfUploadsFile!=""&&!is_dir($cnfUploadsFile)){
+		if(mkdir($cnfUploadsFile, 0755, true))echo "<h4 class='h4Good'>we just made ".$cnfUploadsFile." ! :)</h4><br>";	
+		else echo "<h4 class='h4Bad'>We cant create the ".$cnfUploadsFile." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+	}
+	
     if (isset($_POST['cnfStyle']))
         $cnfStyle = filter_var($_POST['cnfStyle'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfLogo']))
@@ -392,6 +534,8 @@ else if (isset($_POST['urlLink']))
         $cnfSpamKey = filter_var($_POST['cnfSpamKey'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfVoteLevel']))
         $cnfVoteLevel = filter_var($_POST['cnfVoteLevel'], FILTER_SANITIZE_SPECIAL_CHARS);
+	if (isset($_POST['cnfEmailLevel']))
+        $cnfEmailLevel = filter_var($_POST['cnfEmailLevel'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfQuestion1']))
         $cnfQuestion1 = filter_var($_POST['cnfQuestion1'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfAnswer1']))
@@ -452,7 +596,14 @@ else if (isset($_POST['urlLink']))
     if (isset($_POST['cnfGoogleAuthor']))
         $cnfGoogleAuthor = filter_var($_POST['cnfGoogleAuthor'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfGoogleInsignia']))
-        $cnfGoogleInsignia = filter_var($_POST['cnfGoogleInsignia'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $cnfGoogleInsignia = filter_var($_POST['cnfGoogleInsignia'], FILTER_SANITIZE_SPECIAL_CHARS);		
+	if (isset($_POST['cnfPinterestPage']))
+        $cnfPinterestPage = filter_var($_POST['cnfPinterestPage'], FILTER_SANITIZE_SPECIAL_CHARS);
+	if (isset($_POST['cnfInstagramPage']))
+        $cnfInstagramPage = filter_var($_POST['cnfInstagramPage'], FILTER_SANITIZE_SPECIAL_CHARS);
+	if (isset($_POST['cnfLinkedinPage']))
+        $cnfLinkedinPage = filter_var($_POST['cnfLinkedinPage'], FILTER_SANITIZE_SPECIAL_CHARS);
+	
     if (isset($_POST['cnfHashtags']) && $_POST['cnfHashtags'] == "checked")
         $cnfHashtags = "checked";
     else
@@ -496,8 +647,12 @@ else if (isset($_POST['urlLink']))
     //if(isset($_POST['cnfXGoogle']))$cnfXGoogle=filter_var($_POST['cnfXGoogle'], FILTER_SANITIZE_SPECIAL_CHARS);
     //$contenido = file_get_contents('config.php');
     /*$contenido=fUpdate($contenido,'cnfHome',$cnfHomeXX);
-    $contenido=fUpdate($contenido,'cnfUsers',$cnfUsers);
-    $contenido=fUpdate($contenido,'cnfUploads',$cnfUploads);*/
+    $contenido=fUpdate($contenido,'cnfUsers',$cnfUsers);*/
+	$contenido=fUpdate($contenido,'cnfUploads',$cnfUploads);
+	$contenido=fUpdate($contenido,'cnfUploadsImage',$cnfUploadsImage);
+	$contenido=fUpdate($contenido,'cnfUploadsVideo',$cnfUploadsVideo);
+	$contenido=fUpdate($contenido,'cnfUploadsAudio',$cnfUploadsAudio);
+    $contenido=fUpdate($contenido,'cnfUploadsFile',$cnfUploadsFile);
     $contenido = fUpdate($contenido, 'cnfStyle', $cnfStyle);
     $contenido = fUpdate($contenido, 'cnfLogo', $cnfLogo);
     $contenido = fUpdate($contenido, 'cnfFav', $cnfFav);
@@ -510,7 +665,7 @@ else if (isset($_POST['urlLink']))
     $contenido = fUpdate($contenido, 'cnfSubject', $cnfSubject);
     $contenido = fUpdate($contenido, 'cnfNewShort', $cnfNewShort);
     $contenido = fUpdate($contenido, 'cnfNewsFeed', $cnfNewsFeed);
-    $contenido = fUpdate($contenido, 'cnfNewslevel', $cnfNewslevel);
+    $contenido = fUpdate($contenido, 'cnfNewsLevel', $cnfNewslevel);
     $contenido = fUpdate($contenido, 'cnfNumberPage', $cnfNumberPage);
     /*$contenido=fUpdate($contenido,'cnfNews',$cnfNews);
     $contenido=fUpdate($contenido,'cnfQuestions',$cnfQuestions);
@@ -528,6 +683,7 @@ else if (isset($_POST['urlLink']))
     $contenido = fUpdate($contenido, 'cnfModAnswerLevel', $cnfModAnswerLevel);
     $contenido = fUpdate($contenido, 'cnfSpamKey', $cnfSpamKey);
     $contenido = fUpdate($contenido, 'cnfVoteLevel', $cnfVoteLevel);
+	$contenido = fUpdate($contenido, 'cnfEmailLevel', $cnfEmailLevel);
     $contenido = fUpdate($contenido, 'cnfQuestion1', $cnfQuestion1);
     $contenido = fUpdate($contenido, 'cnfAnswer1', $cnfAnswer1);
     $contenido = fUpdate($contenido, 'cnfQuestion2', $cnfQuestion2);
@@ -555,6 +711,9 @@ else if (isset($_POST['urlLink']))
     $contenido = fUpdate($contenido, 'cnfytChannel', $cnfytChannel);
     $contenido = fUpdate($contenido, 'cnfGoogleAuthor', $cnfGoogleAuthor);
     $contenido = fUpdate($contenido, 'cnfGoogleInsignia', $cnfGoogleInsignia);
+	$contenido = fUpdate($contenido, 'cnfPinterestPage', $cnfPinterestPage);
+	$contenido = fUpdate($contenido, 'cnfInstagramPage', $cnfInstagramPage);
+	$contenido = fUpdate($contenido, 'cnfLinkedinPage', $cnfLinkedinPage);	
     $contenido = fUpdate($contenido, 'cnfHashtags', $cnfHashtags);
     $contenido = fUpdate($contenido, 'cnfHomeCacheTime', $cnfHomeCacheTime);
     $contenido = fUpdate($contenido, 'cnfForumCacheTime', $cnfForumCacheTime);
@@ -580,9 +739,42 @@ else if (isset($_POST['urlLink']))
 
 <input type="submit" name="submit" id="submit" value="Save" /><br>
 <div class='boxConfig'>
-<h3><?php
+<h2><?php
+echo "Error checker";
+?> </h2>
+<!--<div id="divError">-No errors-</div>-->
+<?php
+if (isset($_GET['error'])){	
+
+checkError($cnfUsers,2);
+checkError($cnfUploads,1);
+checkError($cnfUploadsImage,0);	
+checkError($cnfUploadsVideo,0);
+checkError($cnfUploadsAudio,0);
+checkError($cnfUploadsFile,0);
+$blogMode = 0;
+if (!is_file("cat.php"))
+  {
+			if(decoct(fileperms('.') & 0777)>=777){
+				echo decoct(fileperms('.') & 0777);
+			}else{
+			$errorReport=1;
+			echo "Your blog hasn't permissions in main folder we try to add its... <br>";
+			if (chmod($fileCheck, 0777))echo "<h4 class='h4Good'>We just added permissions to ".$fileCheck."! :)</h4><br>";
+			else echo "<h4 class='h4Bad'>We cant add permissions to main folder. Do it manually from cpanel or ftp and add 755 permissions<><br>";			
+			}
+   }
+
+}
+if($errorReport==0){
+echo "<h4 class='h4Good'>Your site is working perfectly. Do you think there is an error? go to <a hreh='http://blitzhive.com/Bugs/'>Bugs and report it.</a></h4><br>";
+}
+?>	
+<button type="button" onClick="window.location.href='admin.php?error=1'">Search Errors</button>
+<h2><?php
 echo $lngPath;
-?> </h3>
+?> </h2>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngHomeUrl;
 ?></label><input id="cnfHome" name="cnfHome"  value="<?php
@@ -596,32 +788,49 @@ echo $cnfUsers;
 <label><?php
 echo $lngUpFold;
 ?></label><input id="cnfUploads" name="cnfUploads"  value="<?php
-echo $cnfUploads;
-?>" type="text" disabled/><br>
-<h3><?php
+echo $cnfUploads;?>" type="text"/><br>
+<label><?php
+echo "Images folder";
+?></label><input id="cnfUploadsImage" name="cnfUploadsImage"  value="<?php
+echo $cnfUploadsImage;?>" type="text" /><br>
+<label><?php
+echo "Videos folder";
+?></label><input id="cnfUploadsVideo" name="cnfUploadsVideo"  value="<?php
+echo $cnfUploadsVideo;?>" type="text" /><br>
+<label><?php
+echo "Files folder";
+?></label><input id="cnfUploadsFile" name="cnfUploadsFile"  value="<?php
+echo $cnfUploadsFile;?>" type="text" /><br>
+<label><?php
+echo "Audio folder";
+?></label><input id="cnfUploadsAudio" name="cnfUploadsAudio"  value="<?php
+echo $cnfUploadsAudio;?>" type="text" /><br>
+<h2><?php
 echo $lngStyDe;
-?></h3>
+?></h2>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngStyCss;
 ?></label><input id="cnfStyle" name="cnfStyle"  value="<?php
 echo $cnfStyle;
-?>" type="text"/><input style="float:left;" type="file" name="fileCss" id="fileCss"><input type="submit" name="submitFileCss" id="submitFile" value="Subir Css"><br>
+?>" type="text"/><input style="float:left;" type="file" name="fileCss" id="fileCss"><input type="submit" name="submitFileCss" id="submitFile" value="Upload Css"><br>
 <label><?php
 echo $lngLogo;
 ?></label><input id="cnfLogo" name="cnfLogo"  value="<?php
 echo $cnfLogo;
-?>" type="text"/><input style="float:left;" type="file" name="fileLogo" id="fileLogo"><input type="submit" name="submitFileLogo" id="submitFile" value="Subir Css"><br>
+?>" type="text"/><input style="float:left;" type="file" name="fileLogo" id="fileLogo"><input type="submit" name="submitFileLogo" id="submitFile" value="Upload Logo"><br>
 <label><?php
 echo $lngFavicon;
 ?></label><input id="cnfFav" name="cnfFav"  value="<?php
 echo $cnfFav;
-?>" type="text"/><input style="float:left;" type="file" name="fileFav" id="fileFav"><input type="submit" name="submitFileFav" id="submitFile" value="Subir Css"><br>
+?>" type="text"/><input style="float:left;" type="file" name="fileFav" id="fileFav"><input type="submit" name="submitFileFav" id="submitFile" value="Upload favicon"><br>
 <label><?php
 echo "javascript";
 ?></label><input id="cnfJava" name="cnfJava"  value="<?php
 echo $cnfJava;
-?>" type="text"/><input style="float:left;" type="file" name="fileJava" id="fileJava"><input type="submit" name="submitFileJav" id="submitFile" value="Subir Javascript"><br>
-<label><?php
+?>" type="text"/><input style="float:left;" type="file" name="fileJava" id="fileJava"><input type="submit" name="submitFileJav" id="submitFile" value="Upload Javascript"><br>
+<label>
+<?php
 echo "Idioma";
 ?></label><input type="radio" name="cnfLanguage" value="es-ES" <?php
 if ($cnfLanguage == "es-ES")
@@ -662,9 +871,11 @@ echo $lngTagText;
 ?></label><input id="cnfSubject" name="cnfSubject" value="<?php
 echo $cnfSubject;
 ?>" type="text"/><br>
-<h3><?php
+
+<h2><?php
 echo $lngIndex;
-?></h3>
+?></h2>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngShorTo;
 ?></label><input id="cnfNewShort" name="cnfNewShort" value="<?php
@@ -681,19 +892,22 @@ echo $lngAllIndex;
 echo $cnfNewsLevel;
 ?>" type="text" /><br>
 <?php
+//if (file_exists("i.xml"))
 if (file_exists("i.xml"))
   {
     $xmlP = new DOMDocument();
     $xmlP = simplexml_load_file("i.xml");
     //$contar=$xmlP->h-count();
     //echo "-->".count($xmlP);	
+	
     foreach ($xmlP->h as $programado)
       {
+		$posVarTag = strrpos($programado->t, "_T_");
+		if($posVarTag!==false){
         echo $programado->t;
-        echo '<a href="admin.php?unaprove=' . $programado->t . '">' . $lngDelete2 . '</a><br/>';
-      }
-    if (count($xmlP) == 0)
-        unlink("i.xml");
+        echo '<a href="admin.php?unaprovei=' . $programado->t . '">' . $lngDelete2 . '</a><br/>';
+			}
+      }    
   }
 ?>
 
@@ -734,7 +948,8 @@ if ($cnfPermaLink == 1)
 if ($cnfPermaLink == 0)
     echo "checked";
 ?>>/?mensaje-1<i>No indexa la primera palabra en Google</i>-->
-<h3>Links</h3>
+<h2>Links</h2>
+<hr style="width:75%;float:left;"></hr>
 <?php
 if ($arrLinks == "")
   {
@@ -778,7 +993,8 @@ echo $lngAddLink;
 ?></label><input id="urlLink" name="urlLink" value='' type="text"/><input id="anchorLink" name="anchorLink" value='' type="text"/><input id="titleLink" name="titleLink" value='0' type="text"/><input type="submit" name="submit" id="submit" value="Add" /></div>
 </div>
 <div class='boxConfig'>
-<h3>Forum</h3><br>
+<h2>Forum</h2><br>
+<hr style="width:75%;float:left;"></hr><br>
 <!--<input value='Nombre' type="text"/><input value='Descripcion' type="text"/><input value='Position' type="text"/><br>-->
 <?php
 if ($arrForums == "")
@@ -827,7 +1043,14 @@ else
 ?>
 
 <label>Add Forum</label><input id="nameForum" name="nameForum" value='' type="text"/><input id="desForum" name="desForum" value='' type="text"/><input id="posForum" name="posForum" value='0' type="text"/><input id="modForum" name="modForum" value='0' type="text"/><input type="submit" name="submit" id="submit" value="Add" />
-<h3>Mensajes</h3>
+<h2>Messages</h2>
+<label><?php
+echo "Enabled autoposting in header.php(slower)";
+?>:</label>
+<input type="checkbox" name="cnfAutoPosting" value="checked" <?php
+echo $cnfAutoPosting;
+?>>
+<hr style="width:75%;float:left;"></hr><br>
 <?php
 if (file_exists("p.xml"))
   {
@@ -845,7 +1068,8 @@ if (file_exists("p.xml"))
         unlink("p.xml");
   }
 ?>
-<h3>Respuestas</h3>
+<h2>Respuestas</h2>
+<hr style="width:75%;float:left;"></hr><br>
 <?php
 if (file_exists("m.xml"))
   {
@@ -864,12 +1088,14 @@ if (file_exists("m.xml"))
 ?>
 </div>
 <div class='boxConfig' >
-<h3><?php
+<h2><?php
 echo $lngSecMail;
-?></h3>
-<h4><?php
+?></h2>
+<hr style="width:75%;float:left;"></hr><br>
+<h3><?php
 echo $lngSpam;
-?></h4>
+?></h3>
+<hr style="width:75%;float:left;"></hr><br>
 <input type="checkbox" name="cnfError" value="checked" <?php
 echo $cnfError;
 ?>><?php
@@ -903,6 +1129,11 @@ echo "Vote >(level)";
 ?>:</label> <input id="cnfVoteLevel" name="cnfVoteLevel" value='<?php
 echo $cnfVoteLevel;
 ?>' type="text"/><br>
+<label><?php
+echo "send email >(level)";
+?>:</label> <input id="cnfEmailLevel" name="cnfEmailLevel" value='<?php
+echo $cnfEmailLevel;
+?>' type="text"/><br>
 <input type="checkbox" name="cnfCookie" value="checked" <?php
 echo $cnfCookie;
 ?>><?php
@@ -913,9 +1144,10 @@ echo $lngCookiesAdv;
 ?></label><input type="text" name="cnfAdvCookie" id="cnfAdvCookie" value='<?php
 echo $cnfAdvCookie;
 ?>' />
-<h4><?php
+<h3><?php
 echo $lngSecurity;
-?></h4>
+?></h3>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngSecQues;
 ?> 1:</label> <input id="cnfQuestion1" name="cnfQuestion1" value='<?php
@@ -942,7 +1174,7 @@ echo $lngAdminUser;
 echo $cnfAdm;
 ?>' type="text"/><br>
 <label><?php
-echo $lngUpMaxDes;
+echo $lngUpMaxDes." 0=disabled 1=no max.";
 ?>:</label> <input id="cnfMax" name="cnfMax" value='<?php
 echo $cnfMax;
 ?>' type="text"/><br>
@@ -951,9 +1183,10 @@ echo $lngUpExt;
 ?>:</label> <input id="cnfExt" name="cnfExt" value='<?php
 echo $cnfExt;
 ?>' type="text"/><br>
-<h4><?php
+<h3><?php
 echo $lngEmailTit;
-?></h4>
+?></h3>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngEmailFrom;
 ?>:</label> <input id="cnfEmail" name="cnfEmail" value='<?php
@@ -979,11 +1212,20 @@ echo $lngWellFoot;
 ?>:</label> <input id="cnfRegMailFooter" name="cnfRegMailFooter" value='<?php
 echo $cnfRegMailFooter;
 ?>' type="text"/><br>
+<h3>Send e-mail</h3>
+<hr style="width:75%;float:left;"></hr><br>
+<label>From:</label> <?php echo $cnfEmail;?><br>
+<label>To:</label><input id="emailTo" name="emailTo" value='' type="text"/><br>
+<label>Subject:</label><input id="emailSubject" name="emailSubject" value='' type="text"/><br>
+<label>Body:</label><textarea id="emailBody" name="emailBody" rows="4" cols="50">
+</textarea><br>
+<input type="submit" name="submitEmail" id="submitEmail" value="Send Email">
 </div>
 <div class='boxConfig' >
-<h3><?php
+<h2><?php
 echo $lngSoSeo;
-?></h3>
+?></h2>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngKeyWords;
 ?>:</label> <input id="cnfKeywords" name="cnfKeywords" value='<?php
@@ -1033,15 +1275,29 @@ echo $lngGooInsi;
 ?>:</label> <input id="gpInsignia" name="cnfGoogleInsignia" value='<?php
 echo $cnfGoogleInsignia;
 ?>' type="text"/><br>
+<label><?php
+echo "Pinterest Profile";
+?>:</label> <input id="pinterest" name="cnfPinterestPage" value='<?php
+echo $cnfPinterestPage;
+?>' type="text"/><br>
+<label><?php 
+echo "Instagram Profile";?></label> <input id="instagram" name="cnfInstagramPage" value='<?php
+echo $cnfInstagramPage;
+?>' type="text"/><br>
+<label><?php 
+echo "Linkedin Profile";?></label> <input id="linkedin" name="cnfLinkedinPage" value='<?php
+echo $cnfLinkedinPage;
+?>' type="text"/><br>
 <input type="checkbox" name="cnfHashtags" value="checked" <?php
 echo $cnfHashtags;
 ?>><?php
 echo $lngAddCatHash;
 ?>
 <br>
-<h4><?php
+<h3><?php
 echo $lngCachOpt;
-?></h4>
+?></h3>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngCachHome;
 ?>:</label> <?php
@@ -1095,9 +1351,10 @@ echo $cnfUltraSearch;
 ?>><?php
 echo $lngHard404;
 ?>.<br>
-<h4><?php
+<h3><?php
 echo $lngExtTool;
-?></h4>
+?></h3>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngAnalytic;
 ?>:</label><input type="text" name="cnfAnalytics" value="<?php
@@ -1144,9 +1401,10 @@ echo "En las etiquetas";
 ?>:</label><input type="text" name="cnfAdsTag" value="<?php
 echo $cnfAdsTag;
 ?>" ><br>
-<h4><?php
+<h3><?php
 echo $lngTrack;
-?></h4>
+?></h3>
+<hr style="width:75%;float:left;"></hr><br>
 <label><?php
 echo $lngFillTrack;
 ?>:</label><input type="text" name="cnfTrack" value="<?php

@@ -7,3 +7,4 @@ Disallow: header.php
 Disallow: footer.php
 Disallow: cat.php
 Disallow: track.php
+Disallow: upload.php

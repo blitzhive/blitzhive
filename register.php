@@ -4,11 +4,6 @@ include('header.php');
 /*include('mail.php');*/
 session_start();
 
-
-//echo $_GET["r"]."".utf8_encode($_GET["r"]);
-if(isset($_GET["r"]))$_SESSION['return']=htmlspecialchars($_GET["r"], ENT_QUOTES, "UTF-8");
-//if(isset($_GET["r"]))$_SESSION['return']=$_GET["r"];
-///echo utf8_decode($_SESSION['return']);
 $parent=0;
 if(isset($_GET["p"])){$_SESSION['parent']=filter_var($_GET["p"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $parent=$_SESSION['parent'];
@@ -109,7 +104,7 @@ if($code=="blitzito"){*/
 	}else{
 	$fp = fopen($cnfUsers."/".$_POST["user"][0].".php", "w+");
 	fwrite($fp, '<?php '.$_POST["user"].'=0,0,0,'.$_POST["email"].','.time().','.$parent.',0,'.sha1($_POST["user"].$_POST["password"]).';?>');
-	chmod($cnfUsers."/".$_POST["user"][0].".php", 0644);
+	chmod($cnfUsers."/".$_POST["user"][0].".php", 0755);
 	fclose($fp);
 	$enter=true;
 	}
@@ -118,7 +113,7 @@ if($code=="blitzito"){*/
 //filemtime() 	
 	$_SESSION['iduserx']=$_POST["user"];		
 	$_SESSION['level']=0;
-	echo "Bienvenido ".$_POST["user"].". ";		
+	echo "<h1>Bienvenido ".$_POST["user"].".</h1>";		
 	
 $titulo= 'Bienvenido ';
 $mensaje   = $cnfRegMailHeader." ".$_POST["user"].".".$cnfRegMailFooter;

@@ -1,5 +1,6 @@
 <?php
 if (!isset($_SESSION)) { session_start(); }
+$_SESSION['return']=$_SERVER["REQUEST_URI"];
 $blogMode = 0;
 if (basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]))
   {
@@ -84,12 +85,14 @@ if ($posVarCat !== false)
   
 if ($blogMode == 0)
   {
-    if (($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0") || ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0"))
+	  if ((($cnfCatCacheTime != "" && $cnfCatCacheTime != "0") || ($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0")) && !isset($_SESSION['iduserx']))
+    //if (($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0") || ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0"))
         include('../cache.php');
   }
 else
   {
-	if (($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0") || ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0")  && !isset($_SESSION['iduserx']))
+	    if ((($cnfCatCacheTime != "" && $cnfCatCacheTime != "0") || ($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0")) && !isset($_SESSION['iduserx']))
+	//if (($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0") || ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0")  && !isset($_SESSION['iduserx']))
     //if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
         include "cache.php";
   }
@@ -104,6 +107,7 @@ else
     if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
         $cache = new SimpleCachePhp(__FILE__, $cnfHomeCacheTime);
   }
+  
 if ($blogMode == 0)
   {
     if ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0" && !isset($_SESSION['iduserx']) && $posVarCat === false && !isset($_SESSION['iduserx']))
@@ -113,6 +117,15 @@ if ($blogMode == 0)
         $cache      = new SimpleCachePhp(__FILE__, $cnfMessageCacheTime, 0, $fakeArry, "cachepost", $strMensaje);
       }
   }
+  
+  
+  if ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0" && $posVarCat !== false  && !isset($_SESSION['iduserx'])){
+	  $fakeArry = array();	
+	   $cache      = new SimpleCachePhp(__FILE__, $cnfMessageCacheTime, 0, $fakeArry, "cachecat", $strCategoria);
+		    			
+	  
+  }
+  
 if (strpos(getcwd(), "/") === false)
   {
     $pathForum      = str_replace("-", " ", explode('\\', getcwd()));
@@ -155,41 +168,11 @@ foreach (explode(";", $arrForums) as $line)
           }
   }
 $forumSel .= '</select><input type="submit" name="submitMove" id="submitMove" value="Mover"></form>';
-$strBoxPost = '<div id="divUplaod">';
-if (isset($_SESSION['image0']))
-  {
-	$extUp = pathinfo($_SESSION['image0'], PATHINFO_EXTENSION);
-	$posVarVid  = strpos("mp4,avi,mov,ogg,", $extUp.",");
-	$posVarFile  = strpos("zip,rar,pdf,doc,", $extUp.",");
-    if($posVarVid===false&&$posVarFile===false)$strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image0"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic0]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image0"] . '\',1)"/></b> ' . $lngIntoMes;
-	else if($posVarFile===false)$strBoxPost .= '<video class="vidUpload" src="' . $cnfHome . 'upload/' . $_SESSION["image0"] . '" controls>Not supported</video> Use <b><input type="button" value="[vid0]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image0"] . '\',2)"/></b> ' . $lngIntoMes;
-	else $strBoxPost .= '<b><u>'.$_SESSION["image0"].'</u></b>(↓) Use <b><input type="button" value="[file0]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image0"] . '\',3)"/></b> ' . $lngIntoMes;
-  }
-$strBoxPost .= '<input type="file" name="file[]" id="file0"><br>';
-if (isset($_SESSION['image1']))
-  {
-   $extUp = pathinfo($_SESSION['image1'], PATHINFO_EXTENSION);
-	$posVarVid  = strpos("mp4,avi,mov,ogg,", $extUp.",");
-	$posVarFile  = strpos("zip,rar,pdf,doc,", $extUp.",");
-    if($posVarVid===false&&$posVarFile===false)$strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic1]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',1)"/></b> ' . $lngIntoMes;
-	else if($posVarFile===false)$strBoxPost .= '<video class="vidUpload" src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" controls>Not supported</video> Use <b><input type="button" value="[vid1]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',2)"/></b> ' . $lngIntoMes;
-	else $strBoxPost .= '<b><u>'.$_SESSION["image1"].'</u></b>(↓) Use <b><input type="button" value="[file1]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',3)"/></b> ' . $lngIntoMes;
-  }
-$strBoxPost .= '<input type="file" name="file[]" id="file1"><br>';
-if (isset($_SESSION['image2']))
-  {
-    $extUp = pathinfo($_SESSION['image1'], PATHINFO_EXTENSION);
-	$posVarVid  = strpos("mp4,avi,mov,ogg,", $extUp.",");
-	$posVarFile  = strpos("zip,rar,pdf,doc,", $extUp.",");
-    if($posVarVid===false&&$posVarFile===false)$strBoxPost .= '<img src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" class="imgUpload"/> Use <b><input type="button" value="[pic2]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',1)"/></b> ' . $lngIntoMes;
-	else if($posVarFile===false)$strBoxPost .= '<video class="vidUpload" src="' . $cnfHome . 'upload/' . $_SESSION["image1"] . '" controls>Not supported</video> Use <b><input type="button" value="[vid2]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',2)"/></b> ' . $lngIntoMes;
-	else $strBoxPost .= '<b><u>'.$_SESSION["image1"].'</u></b>(↓) Use <b><input type="button" value="[file2]" onclick="addtag(\'' . $cnfHome . 'upload/' . $_SESSION["image1"] . '\',3)"/></b> ' . $lngIntoMes;
-  }
-$strBoxPost .= '<input style="float:left;" type="file" name="file[]" id="file2">
-<input type="submit" name="submitFile" id="submitFile" value="' . $lngUpload . '">
-</div>';
+
+if(intval($cnfMax)!=0)$strBoxPost.='<span style="font-size:100%;float:left;margin:10px;"><b>Upload Files:</b></span><iframe src="'.$cnfHome.'/upload.php" width="95%" height="100%"  scrolling="no"></iframe>';
+
 $strBoxPost .= '
-<span style="font-size:90%;float:left;"><i>Hotkeys:</i><b>ctrl+</b>b=(bold) <b>|</b> i=(italic) <b>|</b> u=(underline) <b>|</b> s=(strike) <b>|</b> 1=(h1) <b>|</b> 2=(h2) <b>|</b> 3=(h3) <b>|</b> m=(img) <b>|</b> q=(code)  <b>|</b> a=(link) <b>|</b> g=(tag)</span>
+<span style="font-size:90%;float:left;"><i>Hotkeys: </i><b>ctrl+</b>b=(bold) <b>|</b> i=(italic) <b>|</b> u=(underline) <b>|</b> s=(strike) <b>|</b> 1=(h1) <b>|</b> 2=(h2) <b>|</b> 3=(h3) <b>|</b> m=(img) <b>|</b> h=(video) <b>|</b> q=(code)  <b>|</b> e=(link) <b>|</b> g=(tag)</span>
 <br style="clear:both;">
 <input type="button" alt="ctrl+b" value="B" onclick="addtag(\'b\')" style="width:30px; font-weight:bold;" />
 <input type="button" title="ctrl+i" value="I" onclick="addtag(\'i\')"  style="width:30px; font-style:italic;" />
@@ -593,16 +576,17 @@ echo $cnfHome . $cnfLogo;
 <?php
 if (isset($_SESSION['iduserx']))
   {
-    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='" . $cnfHome . "logout.php?r=index.php'>¿Salir?</a>";
+	$_SESSION['return']="index.php";
+    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='" . $cnfHome . "logout.php'>¿Salir?</a>";
     if ($_SESSION['iduserx'] == $cnfAdm)
       {
         echo "<a class='aLogin' href='" . $cnfHome . "admin.php'>" . $lngAdm . "</a>";
       }
   }
 else
-  {
-    echo "<a class='aLogin' href='" . $cnfHome . "login.php?r=" . $_SERVER["REQUEST_URI"] . "'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
-    echo "<a class='aLogin' href='" . $cnfHome . "register.php?r=" . $_SERVER["REQUEST_URI"] . "'>" . $lngReg . "</a>";
+  {	  
+    echo "<a class='aLogin' href='" . $cnfHome . "login.php'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
+    echo "<a class='aLogin' href='" . $cnfHome . "register.php'>" . $lngReg . "</a>";
   }
 ?>
 </div>
@@ -624,6 +608,18 @@ if ($cnfytChannel != "")
   {
     echo '<a class="portadaLinkSocial" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />Youtube</a>';
   }
+  if ($cnfPinterestPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />Pinterest</a>';
+  }  
+if ($cnfInstagramPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />Instagram</a>';
+  } 
+if ($cnfLinkedinPage != "")
+  {
+    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />Linkedin</a>';
+  }  
 if ($cnfXGoogle != "")
   {
     echo '<input type="text" onKeyUp="fSearch0(event,0,\'' . $cnfHome . '\')" id="googleSearch" /><input id="btgoogleSearch" type="button" value="' . $lngSearch . '" onclick="fSearch(0,\'' . $cnfHome . '\')"	/>';
@@ -663,8 +659,8 @@ else
 </div>
 </div>
 <?php
-if ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0" && $posVarCat !== false)
-  {
+//if ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0" && $posVarCat !== false)
+if ($cnfCatCacheTime != "" && $cnfCatCacheTime != "0" && $posVarCat !== false  && !isset($_SESSION['iduserx'])){	
     $fakeArry = array();	
     $cache    = new SimpleCachePhp(__FILE__, $cnfCatCacheTime, 0, $fakeArry, "cachecat", $strCategoria);
   }
@@ -742,7 +738,7 @@ if ($opcion == 0)
             if ($file != "cache" && $file != "." && $file != ".." && strtolower(substr($file, strrpos($file, '.') + 1)) == 'xml' && strlen($file) > 6 && strpos($strFilesT, utf8_encode($file) . ";", 0) === false)
               {
                 $posVarTag = strrpos($file, "_T_");
-                if ($posVarTag === false)
+                if ($posVarTag === false ||($_SESSION['iduserx'] == $cnfAdm || $_SESSION['iduserx'] == $forumMod) )
                   {
                     $files[$xx][0] = utf8_encode($file);
                     $files[$xx][1] = filemtime($file);
@@ -861,9 +857,16 @@ if ($opcion == 0)
                 echo '<input type="checkbox" name="d" id="d" value="1">' . $lngBlock . '<input type="checkbox" name="f" id="f" value="1">' . $lngPin;
                 if ($_SESSION['iduserx'] == $cnfAdm)
                   {
-                    if ($blogMode == 0)
-                        echo '<input type="checkbox" name="po" id="po" value="1">' . $lngIndex;
-                    echo ' | ' . $lngIn . ' <input type="text" style="width:20px" name="ti" id="ti" value="0"> ' . $lngHours;
+					echo ' | ' . $lngIn . ' <input type="text" style="width:20px" name="ti" id="ti" value="0"> ' . $lngHours;	
+                    if ($blogMode == 0){
+                        echo '<input type="checkbox" name="po" id="po" value="1" checked>' . $lngIndex;
+					    echo ' | Index Image:<input type="text" name="poimg" id="poimg" value="">';
+					}
+						
+						if($cnfAdsense != ""){
+						echo '<input type="button" alt="ctrl+4" value="adsense" onclick="addtag(\'adsense\')" style="width:65px;margin-left:10px; font-weight:bold;" />';
+						}
+						
                   }
               }
 ?>
@@ -894,7 +897,12 @@ if ($opcion == 0)
 <?php
           }
       }
-    /*****************T A G ************************/
+/***************** T A G ************************/
+/***************** T A G ************************/
+/***************** T A G ************************/
+/***************** T A G ************************/
+/***************** T A G ************************/
+/***************** T A G ************************/
   }
 else if ($opcion == 1)
   {
@@ -923,8 +931,9 @@ else if ($opcion == 1)
             if (filemtime($file) !== FALSE)
                 $fecha = gmdate("<b>d-M-Y</b> G:i", (int) filemtime($file));
             $posVarTag = strrpos($file, "_T_");
-            if ($file != "cache" && $file != "." && $file != ".." && strtolower(substr($file, strrpos($file, '.') + 1)) == 'xml' && strlen($file) > 6 && strpos($strFilesT, utf8_encode($file) . ";", 0) === false && $posVarTag === false)
+            if ($file != "cache" && $file != "." && $file != ".." && strtolower(substr($file, strrpos($file, '.') + 1)) == 'xml' && strlen($file) > 6 && strpos($strFilesT, utf8_encode($file) . ";", 0) === false && ($posVarTag === false||($_SESSION['iduserx'] == $cnfAdm || $_SESSION['iduserx'] == $forumMod)))
               {
+				  //die($strCategoria);
                 if ($cnfUltraSearch == 'checked')
                   {
                     $xml = simplexml_load_file($file);
@@ -975,6 +984,8 @@ else if ($opcion == 1)
   }
 else
   {
+	$posVarTemporal = strrpos($w, "_T_");
+	if($posVarTemporal!==false&&$_SESSION['iduserx'] != $cnfAdm && $_SESSION['iduserx'] != $forumMod)die(header("refresh:0;url=".$cnfHome));
     $rss = '<a title="RSS" target="_blank" href="' . $cnfHome . 'feed.php?s=' . $pathForumTotal . "/" . $strLink . $w . $strLinkEnd . '&t=1" ><b>RSS</b> </a>';
     $w   = utf8_decode($w);
     if (!file_exists($w . ".xml"))
@@ -1281,14 +1292,16 @@ else
                 $strReMe = "la respuesta";
             if (isset($last15) && $last15 == 1 && $_SESSION['iduserx'] != $cnfAdm && $_SESSION['iduserx'] != $forumMod)
               {
+				  
                 $howMuch = 15 - $interMinuts;
-                echo '<a id="cf' . $xr . '" title="Eliminar ' . $strReMe . '" OnMouseUP="fConfirmDelete(this.id,' . $xr . ',\'' . $cnfHome . 'w.php?q=4&t=' . $xr . '&w=' . $pathForumTotal . $auxBlog . utf8_encode($w) . '\')"  href="#">Tienes ' . round($howMuch) . ' minutos si deseas eliminar ' . $strReMe . '</a>';
+                echo '<a id="cf' . $xr . '" title="Eliminar ' . $strReMe . '" OnMouseUP="fConfirmDelete(this.id,' . $xr . ',\'' . $cnfHome . 'w.php?q=4&t=' . $xr . '&w=' . $pathForumTotal . $auxBlog . utf8_encode(str_replace("&#39;", "\\'", $w)) . '\')"  href="#">Tienes ' . round($howMuch) . ' minutos si deseas eliminar ' . $strReMe . '</a>';
                 echo '<div style="float:left;" id="dc' . $xr . '" ></div>';
               }
             else if (isset($_SESSION['iduserx']))
               {
                 if ($_SESSION['iduserx'] == $cnfAdm || $_SESSION['iduserx'] == $forumMod)
                   {
+					  //die(addslashes($w));
                     echo '<div name="admTool" id="admTool">';
                     if ($xr == 0)
                       {
@@ -1301,9 +1314,13 @@ else
                     if (isset($repuesta->l) && $repuesta->l == 1)
                         $block = 1;
                     $_SESSION['allowdelete'] = 1;
-                    echo '<a class="aTool" id="cf' . $xr . '" title="Eliminar ' . $strReMe . '" OnMouseUP="fConfirmDelete(this.id,' . $xr . ',\'' . $cnfHome . 'w.php?q=4&t=' . $xr . '&w=' . $pathForumTotal . $auxBlog . utf8_encode($w) . '&y=' . $pin . '\')"  >Eliminar ' . $strReMe . '</a>';
+					
+					//$w= addslashes($w);
+					//$w=addcslashes($w, "'");
+					//die("prueba ".addslashes($w));
+                    echo '<a class="aTool" id="cf' . $xr . '" title="Eliminar ' . $strReMe . '" OnMouseUP="fConfirmDelete(this.id,' . $xr . ',\'' . $cnfHome . 'w.php?q=4&t=' . $xr . '&w=' . $pathForumTotal . $auxBlog . fReconvert(utf8_encode($w),1) . '&y=' . $pin . '\')"  >Eliminar ' . $strReMe . '</a>';
                     echo '<div style="float:left;" id="dc' . $xr . '" ></div>';
-                    echo '<a class="aTool" id="ed' . $xr . '" title="Editar ' . $strReMe . '" OnMouseUP="fEdit(\''.$repuesta->t.'\',' . $pin . ',' . $block . ',\'' . $repuesta->g . '\',this.id,' . $xr . ',\'' . $cnfHome . 'w.php?q=5&t=' . $xr . '&w=' . $pathForumTotal . $auxBlog . utf8_encode($w) . '\')"  > Editar ' . $strReMe . '</a> ';
+                    echo '<a class="aTool" id="ed' . $xr . '" title="Editar ' . $strReMe . '" OnMouseUP="fEdit(\''.fReconvert($repuesta->t,1).'\',' . $pin . ',' . $block . ',\'' . fReconvert($repuesta->g,1) . '\',this.id,' . $xr . ',\'' . $cnfHome . 'w.php?q=5&t=' . $xr . '&w=' . $pathForumTotal . $auxBlog . utf8_encode(fReconvert($w,1)) . '\')"  > Editar ' . $strReMe . '</a> ';
                     echo '</div>';
                   }
               }
@@ -1330,8 +1347,15 @@ else
                 echo '<div id="blopin" style="display:none"><input type="checkbox" name="d" id="d" value="1" >Bloqueado<input type="checkbox" name="f" id="f" value="1" >' . $lngPin . '</div>';
                 if ($_SESSION['iduserx'] == $cnfAdm)
                   {
-                    if ($blogMode == 0)
-                        echo '<input type="checkbox" name="po" id="po" value="1">' . $lngIndex;
+					echo ' | ' . $lngIn . ' <input type="text" style="width:20px" name="ti" id="ti" value="0"> ' . $lngHours;	
+                    if ($blogMode == 0){
+                        echo '<input type="checkbox" name="po" id="po" value="1" checked>' . $lngIndex;
+					    echo ' | Index Image:<input type="text" name="poimg" id="poimg" value="">';
+						}
+						
+						if($cnfAdsense != ""){
+						echo '<input type="button" alt="ctrl+4" title="ctrl+4" value="adsense" onclick="addtag(\'adsense\')" style="width:65px;margin-left:10px; font-weight:bold;" />';
+						}
                   }
               }
 ?>
@@ -1415,7 +1439,8 @@ if (isset($repuesta))
   {
     if (!isset($_SESSION['iduserx']) && $repuesta->l != "1")
       {
-        echo "<a href='" . $cnfHome . "login.php?r=" . $_SERVER["REQUEST_URI"] . "'>" . $lngConToWri . "</a><br>";
+		  
+        echo "<a href='" . $cnfHome . "login.php'>" . $lngConToWri . "</a><br>";
       }
     else if ($repuesta->l == "1")
       {
@@ -1431,7 +1456,8 @@ else include('footer.php');
 <?php
 if ($blogMode == 0)
   {
-    if (($cnfCatCacheTime != "" && $cnfCatCacheTime != "0") || ((($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0")) && !isset($_SESSION['iduserx'])))
+	  
+    if ((($cnfCatCacheTime != "" && $cnfCatCacheTime != "0") || ($cnfForumCacheTime != "" && $cnfForumCacheTime != "0") || ($cnfMessageCacheTime != "" && $cnfMessageCacheTime != "0")) && !isset($_SESSION['iduserx']))
       {
         $cache->CacheEnd();
       }

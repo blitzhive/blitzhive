@@ -13,7 +13,10 @@ if($cnfAnalytics!='')
 </script>
 <?php
 }
-if($cnfAdvCookie!=""&&!isset($_SESSION['iduserx'])&&!isset($_SESSION['cookieAdv']))echo '<a href="#" onclick="fCookieAdv(\''.$_SERVER['REQUEST_URI'].'\',\''.$cnfHome.'\')">'.$cnfAdvCookie.'</a>';	
+if($cnfAdvCookie!=""&&!isset($_SESSION['iduserx'])&&!isset($_SESSION['cookieAdv'])){
+	
+	echo '<a href="#" onclick="fCookieAdv(\''.addcslashes($_SERVER['REQUEST_URI'],"'").'\',\''.$cnfHome.'\')">'.$cnfAdvCookie.'</a>';	
+}
 if($cnfTrack!=""){	
 	if($tr==0)include('track.php');
 	else include('../track.php');

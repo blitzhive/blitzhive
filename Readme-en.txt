@@ -1,3 +1,9 @@
+-=1.1.0.0 version=-
+Bugs Fixed:
+- Go to http://blitzhive.com/Bugs/
+Upgrades:
+- Go to http://blitzhive.com/Mejoras/
+
 -=1.0.0.0 version=-
 Bugs Fixed:
 - Fixed a little bug in some blogs modes sites.

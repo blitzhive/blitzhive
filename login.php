@@ -4,7 +4,7 @@ include_once('config.php');
 include_once('header.php');
 $user="";
 $password="";
-
+$tr=0;
 if(isset($_SESSION['iduserx']))
 {
 echo "<h1> ".$lngHi." ".$_SESSION['iduserx']."</h1>. ".$lngConnected."<a href='logout.php'>".$lngLogOut."</a>";
@@ -136,6 +136,7 @@ Login
   </header>
   <section>
 	<form id="form1" name="form1" method="post" action="login.php">
+	
 	<input onclick="this.value=''" placeholder="<?php echo $lngUser;?>" value="<?php echo $lngUser;?>" name="user" id="user" maxlength="15" type="text" />	<br>
 	<input onclick="this.value=''"  placeholder="<?php echo $lngPass;?>" value=""  id="password" name="password" type="password" /><br>
 	<?php

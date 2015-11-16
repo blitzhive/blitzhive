@@ -6,7 +6,7 @@ ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
 }
-if($_COOKIE['iduserx'])$_SESSION['iduserx']=$_COOKIE['iduserx'];
+if(isset($_COOKIE['iduserx']))$_SESSION['iduserx']=$_COOKIE['iduserx'];
 
 function cmp($a, $b)
 {
@@ -117,6 +117,21 @@ $email="";
 
 }
 if($id==3)return $email;
+}
+
+function thumbnail($thumbnail,$cnfHome,$cnfLogo,$cnfThumbnail){
+if($cnfThumbnail!=""){
+	if(is_file($thumbnail.".jpg"))$thumbnail=$thumbnail.".jpg";
+	else if	(is_file($thumbnail.".jpeg"))$thumbnail=$thumbnail.".jpeg";
+	else if	(is_file($thumbnail.".png"))$thumbnail=$thumbnail.".png";
+	else if	(is_file($thumbnail.".gif"))$thumbnail=$thumbnail.".gif";
+	else if	(is_file($thumbnail.".bmp"))$thumbnail=$thumbnail.".bmp";
+	else $thumbnail=$cnfHome.$cnfLogo;
+}else{
+    $thumbnail=$cnfHome.$cnfLogo;
+	die($thumbnail);
+}
+return $thumbnail;
 }
 //fProgramadas();
 if($cnfAutoPosting!="")fProgramadas();

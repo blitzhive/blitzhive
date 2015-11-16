@@ -271,7 +271,7 @@ else
             //echo $programado->t."==".$_GET['unaprove'];
             if ($programado->t == $_GET['unaprovei'])
               {
-                unlink($programado->t.".xml");
+                //unlink($programado->t.".xml");
                 unset($programado[0][0]);
                 break;
               }
@@ -444,6 +444,8 @@ else if (isset($_POST['urlLink']))
 	if(isset($_POST['cnfUploadsImage']))$cnfUploadsImage=filter_var($_POST['cnfUploadsImage'], FILTER_SANITIZE_URL);
 	if(isset($_POST['cnfUploadsVideo']))$cnfUploadsVideo=filter_var($_POST['cnfUploadsVideo'], FILTER_SANITIZE_URL);
 	if(isset($_POST['cnfUploadsAudio']))$cnfUploadsAudio=filter_var($_POST['cnfUploadsAudio'], FILTER_SANITIZE_URL);
+	if(isset($_POST['cnfThumbnail']))$cnfThumbnail=filter_var($_POST['cnfThumbnail'], FILTER_SANITIZE_URL);
+	if(isset($_POST['cnfBlogFolder']))$cnfBlogFolder=filter_var($_POST['cnfBlogFolder'], FILTER_SANITIZE_URL);
 	if(isset($_POST['cnfUploadsFile']))$cnfUploadsFile=filter_var($_POST['cnfUploadsFile'], FILTER_SANITIZE_URL);
 	
 	/**
@@ -465,6 +467,17 @@ else if (isset($_POST['urlLink']))
 		if(mkdir($cnfUploadsAudio, 0755, true))echo "<h4 class='h4Good'>we just maded ".$cnfUploadsAudio." ! :)</h4><br>";	
 		else echo "<h4 class='h4Bad'>We cant create the ".$cnfUploadsAudio." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
 	}
+	if($cnfThumbnail!=""&&!is_dir($cnfThumbnail)){
+		if(mkdir($cnfThumbnail, 0755, true))echo "<h4 class='h4Good'>we just maded ".$cnfThumbnail." ! :)</h4><br>";	
+		else echo "<h4 class='h4Bad'>We cant create the ".$cnfThumbnail." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+	}
+	
+	if($cnfBlogFolder!=""&&!is_dir($cnfBlogFolder)){
+		if(mkdir($cnfBlogFolder, 0755, true))echo "<h4 class='h4Good'>we just maded ".$cnfBlogFolder." ! :)</h4><br>";	
+		else echo "<h4 class='h4Bad'>We cant create the ".$cnfBlogFolder." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
+	}
+	
+	
 	if($cnfUploadsFile!=""&&!is_dir($cnfUploadsFile)){
 		if(mkdir($cnfUploadsFile, 0755, true))echo "<h4 class='h4Good'>we just made ".$cnfUploadsFile." ! :)</h4><br>";	
 		else echo "<h4 class='h4Bad'>We cant create the ".$cnfUploadsFile." folder. Do it manually from cpanel or ftp and add 755 permissions</h4><br>";
@@ -490,6 +503,8 @@ else if (isset($_POST['urlLink']))
         $cnfDescription = filter_var($_POST['cnfDescription'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfSubject']))
         $cnfSubject = filter_var($_POST['cnfSubject'], FILTER_SANITIZE_SPECIAL_CHARS);
+		if (isset($_POST['cnfRelatedSubject']))
+        $cnfRelatedSubject = filter_var($_POST['cnfRelatedSubject'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfNewShort']))
         $cnfNewShort = filter_var($_POST['cnfNewShort'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfNewsFeed']))
@@ -508,6 +523,12 @@ else if (isset($_POST['urlLink']))
     if (isset($_POST['cnfPermaLink']))
         $cnfPermaLink = filter_var($_POST['cnfPermaLink'], FILTER_SANITIZE_SPECIAL_CHARS);
     //security
+	
+	if (isset($_POST['cnfAutoPosting']) && $_POST['cnfAutoPosting'] == "checked")
+        $cnfAutoPosting = "checked";
+    else
+        $cnfAutoPosting = "";
+	
     if (isset($_POST['cnfError']) && $_POST['cnfError'] == "checked")
         $cnfError = "checked";
     else
@@ -652,6 +673,8 @@ else if (isset($_POST['urlLink']))
 	$contenido=fUpdate($contenido,'cnfUploadsImage',$cnfUploadsImage);
 	$contenido=fUpdate($contenido,'cnfUploadsVideo',$cnfUploadsVideo);
 	$contenido=fUpdate($contenido,'cnfUploadsAudio',$cnfUploadsAudio);
+	$contenido=fUpdate($contenido,'cnfThumbnail',$cnfThumbnail);
+	$contenido=fUpdate($contenido,'cnfBlogFolder',$cnfBlogFolder);	
     $contenido=fUpdate($contenido,'cnfUploadsFile',$cnfUploadsFile);
     $contenido = fUpdate($contenido, 'cnfStyle', $cnfStyle);
     $contenido = fUpdate($contenido, 'cnfLogo', $cnfLogo);
@@ -663,6 +686,7 @@ else if (isset($_POST['urlLink']))
     $contenido = fUpdate($contenido, 'cnfFooterText', $cnfFooterText);
     $contenido = fUpdate($contenido, 'cnfDescription', $cnfDescription);
     $contenido = fUpdate($contenido, 'cnfSubject', $cnfSubject);
+$contenido = fUpdate($contenido, 'cnfRelatedSubject', $cnfRelatedSubject);		
     $contenido = fUpdate($contenido, 'cnfNewShort', $cnfNewShort);
     $contenido = fUpdate($contenido, 'cnfNewsFeed', $cnfNewsFeed);
     $contenido = fUpdate($contenido, 'cnfNewsLevel', $cnfNewslevel);
@@ -675,7 +699,9 @@ else if (isset($_POST['urlLink']))
     $contenido = fUpdate($contenido, 'cnfNumberFeed', $cnfNumberFeed);
     $contenido = fUpdate($contenido, 'cnfPermaLink', $cnfPermaLink);
     //security
-    $contenido = fUpdate($contenido, 'cnfError', $cnfError);
+	
+	$contenido = fUpdate($contenido, 'cnfAutoPosting', $cnfAutoPosting);	
+    $contenido = fUpdate($contenido, 'cnfError', $cnfError);	
     $contenido = fUpdate($contenido, 'cnfModAnswerAll', $cnfModAnswerAll);
     $contenido = fUpdate($contenido, 'cnfModAnswerLink', $cnfModAnswerLink);
     $contenido = fUpdate($contenido, 'cnfCookie', $cnfCookie);
@@ -805,6 +831,14 @@ echo $cnfUploadsFile;?>" type="text" /><br>
 echo "Audio folder";
 ?></label><input id="cnfUploadsAudio" name="cnfUploadsAudio"  value="<?php
 echo $cnfUploadsAudio;?>" type="text" /><br>
+<label><?php
+echo "Thumbnail Folder";
+?></label><input id="cnfThumbnail" name="cnfThumbnail"  value="<?php
+echo $cnfThumbnail;?>" type="text" /><br>
+<label><?php
+echo "Mode Blog Folder";
+?></label><input id="cnfBlogFolder" name="cnfBlogFolder"  value="<?php
+echo $cnfBlogFolder;?>" type="text" /><br>
 <h2><?php
 echo $lngStyDe;
 ?></h2>
@@ -871,7 +905,11 @@ echo $lngTagText;
 ?></label><input id="cnfSubject" name="cnfSubject" value="<?php
 echo $cnfSubject;
 ?>" type="text"/><br>
-
+<label><?php
+echo "Number of Related Post(could be overloaded)";
+?></label><input id="cnfRelatedSubject" name="cnfRelatedSubject" value="<?php
+echo $cnfRelatedSubject;
+?>" type="text"/><br>
 <h2><?php
 echo $lngIndex;
 ?></h2>
@@ -903,9 +941,9 @@ if (file_exists("i.xml"))
     foreach ($xmlP->h as $programado)
       {
 		$posVarTag = strrpos($programado->t, "_T_");
-		if($posVarTag!==false){
+		if($posVarTag===false){
         echo $programado->t;
-        echo '<a href="admin.php?unaprovei=' . $programado->t . '">' . $lngDelete2 . '</a><br/>';
+        echo '<a href="admin.php?unaprovei=' . $programado->t . '">Remove from index</a><br/>';
 			}
       }    
   }
@@ -1044,16 +1082,17 @@ else
 
 <label>Add Forum</label><input id="nameForum" name="nameForum" value='' type="text"/><input id="desForum" name="desForum" value='' type="text"/><input id="posForum" name="posForum" value='0' type="text"/><input id="modForum" name="modForum" value='0' type="text"/><input type="submit" name="submit" id="submit" value="Add" />
 <h2>Messages</h2>
-<label><?php
+<hr style="width:75%;float:left;"></hr><br>
+<br><label><?php
 echo "Enabled autoposting in header.php(slower)";
 ?>:</label>
 <input type="checkbox" name="cnfAutoPosting" value="checked" <?php
 echo $cnfAutoPosting;
-?>>
-<hr style="width:75%;float:left;"></hr><br>
+?>><br>
+
 <?php
 if (file_exists("p.xml"))
-  {
+  {	  
     $xmlP = new DOMDocument();
     $xmlP = simplexml_load_file("p.xml");
     //$contar=$xmlP->h-count();

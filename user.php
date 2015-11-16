@@ -363,26 +363,28 @@ else
 ?>
 </head>
 <body>
-<div class="box1">
+<div class="box1" >
 <a href="<?php
 echo $cnfHome;
 ?>" alt="<?php
 echo $lngBackIndex;
 ?>" title="<?php
 echo $lngBackIndex;
-?>" ><img class="logo"  src="<?php
-echo $cnfHome . $cnfLogo;
-?>"  /></a>
-<div class="boxAlignVertical">
-<h2 class='h1Vertical'><?php
+?>">
+<img class="logo" title="<?php
 echo $cnfHeaderText;
-?></h2>
+?>" src="<?php
+echo $cnfHome . $cnfLogo;
+?>" /></a>
+<div class="boxAlignVertical">
+<h1 class='h1Vertical'><?php
+echo $cnfHeaderText;
+?></h1>
 <?php
-//session_start();
 if (isset($_SESSION['iduserx']))
   {
-	$_SESSION['return']="index.php";
-    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='" . $cnfHome . "logout.php'>¿Salir?</a>";
+	 $_SESSION['return']="index.php";
+    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='". $cnfHome ."logout.php'>¿Salir?</a>";
     if ($_SESSION['iduserx'] == $cnfAdm)
       {
         echo "<a class='aLogin' href='" . $cnfHome . "admin.php'>" . $lngAdm . "</a>";
@@ -390,55 +392,127 @@ if (isset($_SESSION['iduserx']))
   }
 else
   {
-    echo "<a class='aLogin' href='" . $cnfHome . "login.php'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
-    echo "<a class='aLogin' href='" . $cnfHome . "register.php'>" . $lngReg . "</a>";
+    echo "<a class='aLogin' href='".$cnfHome."login.php'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
+    echo "<a class='aLogin' href='".$cnfHome."register.php'>" . $lngReg . "</a>";
+  }
+if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
+  {
+    $cache = new SimpleCachePhp(__FILE__, $cnfHomeCacheTime);
   }
 ?>
+
 </div>
-<div class="boxTools">
+<div class="searchBox">
 <?php
-if ($cnfFbFan != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Facebook" href="http://fb.com/' . $cnfFbFan . '" target="_blank" />Facebook</a>';
-  }
-if ($cnfTwFollow != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Twitter" href="https://twitter.com/' . $cnfTwFollow . '" target="_blank" />Twitter</a>';
-  }
-if ($cnfGoogleInsignia != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Google Plus" href="https://plus.google.com/' . $cnfGoogleInsignia . '" target="_blank" />Google+</a>';
-  }
-if ($cnfytChannel != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />Youtube</a>';
-  }
-  if ($cnfPinterestPage != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />Pinterest</a>';
-  }  
-if ($cnfInstagramPage != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />Instagram</a>';
-  } 
-if ($cnfLinkedinPage != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />Linkedin</a>';
-  }  
 if ($cnfXGoogle != "")
   {
-    echo '<input type="text" onKeyUp="fSearch0(event,0,\'' . $cnfHome . '\')" id="googleSearch" /><input id="btgoogleSearch" type="button" value="' . $lngSearch . '" onclick="fSearch(0,\'' . $cnfHome . '\')"	/>';
+ echo '<input type="text" onKeyUp="fSearch0(event,0,\'' . $cnfHome . '\')" id="googleSearch" /><input id="btgoogleSearch" type="button" value="' . $lngSearch . '" onclick="fSearch(0,\'' . $cnfHome . '\')"	/>';
   }
 else if ($cnfGoogleSearch != "")
   {
-    echo "<gcse:search></gcse:search>";
+echo "<gcse:search></gcse:search>";
   }
-?>
+  ?>
 </div>
+<div class="boxTools">
+<ul id="hexPanel">
+
+<?php
+
+
+
+if ($cnfFbFan != "")
+  {
+	echo '<li class="p1">
+  <a title="' . $lngFollow . ' en Facebook" href="http://fb.com/' . $cnfFbFan . '" target="_blank" >
+    <b></b>
+    <span>Facebook</span>
+    <em></em>
+  </a>
+</li>';  
+    //echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Facebook" href="http://fb.com/' . $cnfFbFan . '" target="_blank" />Facebook</a>';
+  }
+if ($cnfTwFollow != "")
+  {
+echo' 	  <li>
+  <a title="' . $lngFollow . ' en Twitter" href="https://twitter.com/' . $cnfTwFollow . '" target="_blank" />
+    <b></b>
+    <span>Twitter</span>
+    <em></em>
+  </a>
+</li>';
+    //echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Twitter" href="https://twitter.com/' . $cnfTwFollow . '" target="_blank" />Twitter</a>';
+  }
+if ($cnfGoogleInsignia != "")
+  {
+echo '<li class="p2">
+  <a  title="' . $lngFollow . ' en Google Plus" href="https://plus.google.com/' . $cnfGoogleInsignia . '" target="_blank" />
+    <b></b>
+    <span>Google+</span>
+    <em></em>
+  </a>
+</li>';	  
+    //echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Google Plus" href="https://plus.google.com/' . $cnfGoogleInsignia . '" target="_blank" />Google+</a>';
+  }
+if ($cnfytChannel != "")
+  {
+	  
+	echo'<li class="p2">
+  <a  class="inner" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />
+    <b></b>
+    <span>Youtube</span>
+    <em></em>
+  </a>
+</li>';
+   // echo '<a class="portadaLinkSocial" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />Youtube</a>';
+  }
+if ($cnfPinterestPage != "")
+  {
+'<li class="p2">
+  <a  title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />
+    <b></b>
+    <span>Pinterest</span>
+    <em></em>
+  </a>
+</li>';
+   // echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />Pinterest</a>';
+  }  
+if ($cnfInstagramPage != "")
+  {
+echo '<li class="p1 p2">
+  <a  title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />
+    <b></b>
+    <span>Instagram</span>
+    <em></em>
+  </a>
+</li>';
+   // echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />Instagram</a>';
+  } 
+if ($cnfLinkedinPage != "")
+  {
+echo '<li class="p2">
+  <a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />
+    <b></b>
+    <span>Linkedin</span>
+    <em></em>
+  </a>
+</li>';
+//echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />Linkedin</a>';
+    
+  }   
+  
+
+?>
+</ul>
+
+</div>
+
 <div class="boxCat">
+
 <?php
 if ($arrForums == "")
   {
+    //echo $lngNotCat;
   }
 else
   {
@@ -457,41 +531,55 @@ else
         usort($arrayOfArrays, "cmp");
     for ($x = 0; $x < count($arrayOfArrays); $x++)
       {
-        echo '<a  title="' . $arrayOfArrays[$x][1] . '" href="' . $cnfHome . fCleanChar($arrayOfArrays[$x][0]) . '">' . $arrayOfArrays[$x][0] . '</a> | ';
+	echo'<a  class="linkCat" title="' . $arrayOfArrays[$x][1] . '" href="' . $cnfHome . fCleanChar($arrayOfArrays[$x][0]) . '"><div id="hexCat" class="hexagon-wrapper">		   
+		<div id="color0" class="hexagon2">
+	</div></div>'. $arrayOfArrays[$x][0] . '</a>';
+	
+		//echo '<div class="hexagon100"><span></span></div><br>';
       }
   }
+//echo "</aside>";
 ?>
 </div>
 </div>
 <?php
 if ($arrLinks != "")
   {
-    echo "<ul>";
+    echo "<ul>\r\n";
     foreach (explode(";", $arrLinks) as $line)
       {
         $item = explode("*", $line);
         if (isset($item[1]))
           {
-            echo "<li class='liLinks'><a class='linkNav' href='" . $item[0] . "' title='" . $item[0] . "'>" . $item[1] . "</a></li>";
+            //echo "<li class='liLinks'><a class='linkNav' href='" . $item[0] . "' title='" . $item[0] . "'>" . $item[1] . "</a></li>\r\n";
+			 echo '
+	<li class="liLinks"><div id="hexLink" class="hexagon-wrapper">		   
+		<div id="color1" class="hexagon2">
+	</div>
+	</div><a class="linkNav" href="' . $item[0] . '" title="' . $item[0] . '">' . $item[1] . '</a></li>
+	';
           }
       }
   }
-echo "</ul>";
+echo "</ul>\r\n";
 ?>
-<div style="clear:both;"></div>
+<div style="clear:both"></div>
 <article class="boxPost" >
-  <header>
+  <header >
 	<?php
-echo "<h2 id='h2Title' class='h2Gray'>" . $user . "</h2>";
-?>
+echo '<div style="float: left; width: 120px;">
+    <div class="box-8"></div>
+    <div class="box-9"><br>' . $user .'<br>
+	<p class="pSubLine">';
 	
-	<p class='pSubLine'>
-	<?php
 if (isset($intVotes))
     echo fUser($intVotes, $user);
-?>
-	</p><br>
-	
+	echo '</div></p>
+    <div class="box-10"></div>
+</div>';
+	?>
+<br>
+	<br style="clear:both;"> 
   </header>
   <section><?php
 echo $strTitle;

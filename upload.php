@@ -39,7 +39,7 @@ if (isset($_POST['submitFile']))
 					$posVarVid  = strpos("mp4,avi,mov,ogg,mpg,wmv,", $extUp.",");
 					$posVarAudio  = strpos("mp3,wav,wma,", $extUp.",");
 					$posVarFile  = strpos("zip,rar,pdf,doc,docx,xls,xlsx,txt,", $extUp.",");
-					$posVarImage  = strpos("jpg,jpeg,gif,png,bmp", $extUp.",");
+					$posVarImage  = strpos("jpg,jpeg,gif,png,bmp,", $extUp.",");
 					
 					if($posVarVid!==false&&$cnfUploadsVideo!="")$cnfUploadFolder=$cnfUploadsVideo;
 					else if($posVarAudio!==false&&$cnfUploadsAudio!="")$cnfUploadFolder=$cnfUploadsAudio;
@@ -110,7 +110,10 @@ body{font-family:"Segoe UI",Tahoma,Helvetica,freesans,sans-serif;font-size:90%;m
 </form>
 <div id="messages">
 <h3>Click to use!</h3>
-<?php echo $strFail.$_SESSION['uploadedText'];?>
+<?php 
+	if(isset($_SESSION['uploadedText']))echo $strFail.$_SESSION['uploadedText'];
+	else echo $strFail;
+?>
 </div>
 <script LANGUAGE="JavaScript">
 function $id(a){return document.getElementById(a)}function Output(a){var b=$id("messages");b.innerHTML=a+b.innerHTML}function FileDragHover(a){a.stopPropagation();a.preventDefault();a.target.className="dragover"==a.type?"hover":""}function FileSelectHandler(a){FileDragHover(a);a=a.target.files||a.dataTransfer.files;$id("submitFile").style.backgroundColor="lightblue";for(var b=0,c;c=a[b];b++)ParseFile(c)}

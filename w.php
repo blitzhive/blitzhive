@@ -1,7 +1,15 @@
 <?php
+
 if (!isset($_SESSION)) { session_start(); }
 include('config.php');
 include('header.php');
+$blogMode = 1;
+$cnfBlogFolder=$cnfBlogFolder."/";
+if(is_file("cat.php"))
+  {	  
+    $blogMode = 0;
+	$cnfBlogFolder="";
+  } 
 function fRemoveT($w)
   {
     $forum    = substr($w, 0, strpos($w, "/", 0));
@@ -62,8 +70,8 @@ if (isset($_POST['ti']))
 /*if (isset($_GET['w']))
     $w = filter_var($_GET['w'], FILTER_SANITIZE_SPECIAL_CHARS); //FIleName*/
 $e = "";
-if (isset($_POST['txtE']))
-    $e = nl2br($_POST['txtE']); //body
+if (isset($_POST['hide']))
+    $e = nl2br($_POST['hide']); //body
 if (isset($_POST['r']))
     $r = filter_var($_POST['r'], FILTER_SANITIZE_SPECIAL_CHARS); //type
 if (isset($_GET['t']))
@@ -100,7 +108,7 @@ if ($q == 0 || $q == 2)
         die(header('refresh:2;url=' . $_SERVER['HTTP_REFERER']));
       }
     if (strlen($e) < 1)
-      {
+      {		  
         echo "<h3>Write something for the Body :)</h3>";
         die(header('refresh:2;url=' . $_SERVER['HTTP_REFERER']));
       }
@@ -109,9 +117,59 @@ if ($q == 0 || $q == 2)
     $strSubName = "";
     if ($ti != 0)$strSubName = "_T_";	
     $fileName = fCleanSimple($fileName, 0);
+	$uniqName=0;	
+	if($cnfBlogFolder!="")$varFolder=$cnfBlogFolder;
+	else $varFolder=$t . "/";
+		
+	while(is_file($varFolder.$fileName.".xml")){
+		$fileName.=$uniqName;
+		$uniqName++;
+	}	
 	$fileName.=$strSubName;
-	
-	
+		/**thumbnail**/  
+		
+		if($poimg!=""&&$poimg!=0&&$poimg!="0")
+		{
+		if(!is_dir($cnfThumbnail))mkdir($cnfThumbnail, 0777, true);
+		$cnfThumbnail="thumbnail";
+		// Get new sizes
+		//die($poimg);
+		list($widthSource, $heightSource) = getimagesize($poimg);				
+		$thumb = imagecreatetruecolor(150, 150);
+		
+			$extUp = strtolower(pathinfo($poimg, PATHINFO_EXTENSION));
+			
+			$posVarImageJpg  = strpos("jpg,jpeg,", $extUp.",");
+			$posVarImagePng  = strpos("gif", $extUp);
+			$posVarImageGif  = strpos("png", $extUp);
+			$posVarImageBmp  = strpos("bmp,", $extUp);
+			
+			if($posVarImageJpg!==false)$source = imagecreatefromjpeg($poimg);		
+			else if($posVarImagePng!==false)$source = imagecreatefrompng($poimg);
+			else if($posVarImageGif!==false)$source = imagecreatefromgif($poimg);
+			else if($posVarImageBmp!==false)$source = imagecreatefromwbmp($poimg);
+		
+		
+		
+		//imagecopyresized($thumb, $source, 0, 0, 0, 0, 100, 100, $widthSource, $heightSource);
+		imagecopyresampled($thumb, $source, 0, 0, 0, 0, 150, 150, $widthSource, $heightSource);
+		
+		
+		
+		if($posVarImageJpg!==false)imagejpeg($thumb, $cnfThumbnail."/".$fileName.".jpg");
+		else if($posVarImagePng!==false)imagepng($thumb, $cnfThumbnail."/".$fileName.".png");
+		else if($posVarImageGif!==false)imagegif($thumb, $cnfThumbnail."/".$fileName.".gif");
+		else if($posVarImageBmp!==false)imagewbmp($thumb, $cnfThumbnail."/".$fileName.".bmp");
+		
+		//imagejpeg
+		
+		imagedestroy($source);
+		imagedestroy($thumb);
+		}else
+		{
+			$poimg="0";		  
+		}
+	//die($poimg);
 	
     $xml      = 0;
     $last15   = 0;
@@ -147,10 +205,11 @@ if ($q == 0 || $q == 2)
     unset($_SESSION['image1']);
     unset($_SESSION['image2']);
 
+		
 	
-	
-    $e    = strip_tags($e, '<br><b><i><u><strike><s><a><img><iframe><div><code><pre><h1><h2><h3><video><adsense>');
-	if($cnfAdsense!="")$e = preg_replace("/<adsense><\/adsense>/", $cnfAdsense, $e);
+    $e    = strip_tags($e, '<br><b><i><u><strike><s><a><img><iframe><div><code><pre><h1><h2><h3><video>');
+	if($cnfAdsense!="" && $_SESSION['iduserx'] == $cnfAdm)$e = preg_replace("/<h1>\*\*Adsense Block\*\*<\/h1>/", $cnfAdsense, $e);
+
     $posA = strpos($e, "<iframe ", 0);
     while ($posA !== false)
       {
@@ -307,7 +366,7 @@ if ($q == 0 || $q == 2)
           }
         else
           {
-            $xml->save($fileName . ".xml");
+            $xml->save($cnfBlogFolder.$fileName . ".xml");
           }
         if ($f != "0")
           {
@@ -358,15 +417,34 @@ if ($q == 0 || $q == 2)
           {
             $xml2           = new DOMDocument();
             $xml2->encoding = 'utf-8';
+			$existFile=0;
             if (file_exists("i.xml"))
               {
                 $xml2->load("i.xml");
+				
+			
+			  $newFile=$t . "/" . utf8_encode($fileName); 			
+			$xml3=simplexml_load_file("i.xml");
+			foreach ($xml3->h as $programado)
+			{			
+            if ($programado->t==$newFile)
+              {
+				$existFile=1;				  
+				 break;
+              }
+			}
+				
                 $xml_document2 = $xml2->getElementsByTagName("d")->item(0);
+				
+				
+				
               }
             else
               {
                 $xml_document2 = $xml2->createElement("d");
               }
+	
+			 if($existFile==0) {
             $xml_title2 = $xml2->createElement("t");
             $xml_title2->appendChild($xml2->createTextNode($t . "/" . utf8_encode($fileName)));
 			$xml_img = $xml2->createElement("i");
@@ -388,13 +466,14 @@ if ($q == 0 || $q == 2)
                 $xml2->appendChild($xml_document2);
               }
             $xml2->save("i.xml");
+			 }
           }
 		  
 		unset($_SESSION['answer']);
 		unset($_SESSION['body']);
 		unset($_SESSION['title']);
 		unset($_SESSION['tag']);
-		
+		unset($_SESSION['uploadedText']);
         if (str_word_count($e, 0) > 199)
           {
             header("refresh:2;url=" . $cnfHome . utf8_decode($_GET['t']) . "/" . $strLink . html_entity_decode(fReconvert($fileName),0) . $strLinkEnd);
@@ -431,6 +510,7 @@ if ($q == 0 || $q == 2)
 		unset($_SESSION['body']);
 		unset($_SESSION['title']);
 		unset($_SESSION['tag']);
+		unset($_SESSION['uploadedText']);
         $xml->save($w . ".xml");		
         $ifBlogMOde = strpos($_GET['w'], '/' . $strLink);
         if ($ifBlogMOde === false)
@@ -572,15 +652,28 @@ else if ($q == 5)
       {
         $xml2           = new DOMDocument();
         $xml2->encoding = 'utf-8';
+		$existFile=0;
         if (file_exists("i.xml"))
           {
             $xml2->load("i.xml");
             $xml_document2 = $xml2->getElementsByTagName("d")->item(0);
+			$newFile=utf8_encode($w); 
+			//echo $newFile;
+			$xml3=simplexml_load_file("i.xml");
+			foreach ($xml3->h as $programado)
+			{			
+            if ($programado->t==$newFile)
+              {
+				$existFile=1;				  
+				 break;
+              }
+			}			
           }
         else
           {
             $xml_document2 = $xml2->createElement("d");
           }
+		  if($existFile==0){
         $xml_title2 = $xml2->createElement("t");
         $xml_title2->appendChild($xml2->createTextNode(utf8_encode($w)));
         $xml_hijo = $xml2->createElement("h");
@@ -596,6 +689,7 @@ else if ($q == 5)
             $xml2->appendChild($xml_document2);
           }
         $xml2->save("i.xml");
+		  }
       }
     unset($_SESSION['answer']);
     $xml->asXml($w . ".xml");

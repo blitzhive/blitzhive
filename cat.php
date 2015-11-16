@@ -2,9 +2,11 @@
 if (!isset($_SESSION)) { session_start(); }
 $_SESSION['return']=$_SERVER["REQUEST_URI"];
 $blogMode = 0;
+$cnfBlogFolder="";
 if (basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]))
   {
     $blogMode = 1;
+	$cnfBlogFolder=$cnfBlogFolder."/";
   }
   
 $auxBlog = "/";
@@ -143,6 +145,7 @@ else
 if ($blogMode != 0)
     $pathForumTotal = "";
 $forumName = "";
+$forumReal = "";
 $forumDes  = "";
 $forumMod  = "";
 $forumSel  = $lngMoveTo . '<select name="selMove" id="selMove">';
@@ -155,6 +158,7 @@ foreach (explode(";", $arrForums) as $line)
             $forumName = $item[0];
             $forumDes  = $item[1];
             $forumMod  = $item[3];
+			$forumReal = $item[4];
             if (isset($_SESSION['iduserx']))
                 if ($forumMod == $_SESSION['iduserx'])
                   {
@@ -169,26 +173,30 @@ foreach (explode(";", $arrForums) as $line)
   }
 $forumSel .= '</select><input type="submit" name="submitMove" id="submitMove" value="Mover"></form>';
 
+$strBoxPost="";
 if(intval($cnfMax)!=0)$strBoxPost.='<span style="font-size:100%;float:left;margin:10px;"><b>Upload Files:</b></span><iframe src="'.$cnfHome.'/upload.php" width="95%" height="100%"  scrolling="no"></iframe>';
-
 $strBoxPost .= '
-<span style="font-size:90%;float:left;"><i>Hotkeys: </i><b>ctrl+</b>b=(bold) <b>|</b> i=(italic) <b>|</b> u=(underline) <b>|</b> s=(strike) <b>|</b> 1=(h1) <b>|</b> 2=(h2) <b>|</b> 3=(h3) <b>|</b> m=(img) <b>|</b> h=(video) <b>|</b> q=(code)  <b>|</b> e=(link) <b>|</b> g=(tag)</span>
+<span style="font-size:90%;float:left;"><i>Hotkeys: </i><b>ctrl+</b>b=(bold) <b>|</b> i=(italic) <b>|</b> u=(underline) <b>|</b> s=(strike) <b>|</b> 1=(h1) <b>|</b> 2=(h2) <b>|</b> 3=(h3) <b>|</b> m=(img) <b>|</b> h=(video) <b>|</b> y=(youtube)  <b>|</b> t=(vimeo) <b>|</b> q=(code)  <b>|</b> e=(link) <b>|</b> g=(tag)</span>
 <br style="clear:both;">
-<input type="button" alt="ctrl+b" value="B" onclick="addtag(\'b\')" style="width:30px; font-weight:bold;" />
+<input type="button" title="ctrl+b" value="B" onclick="addtag(\'b\')" style="width:30px; font-weight:bold;" />
 <input type="button" title="ctrl+i" value="I" onclick="addtag(\'i\')"  style="width:30px; font-style:italic;" />
-<input type="button" value="U" onclick="addtag(\'u\')"  style="width:30px; text-decoration:underline;" />
-<input type="button" value="S" onclick="addtag(\'s\')"  style="width:30px; text-decoration:strike;" />
-<input type="button" value="<h1>" onclick="addtag(\'h1\')"  style="width:30px; text-decoration:strike;" />
-<input type="button" value="<h2>" onclick="addtag(\'h2\')"  style="width:30px; text-decoration:strike;" />
-<input type="button" value="<h3>" onclick="addtag(\'h3\')"  style="width:30px; text-decoration:strike;" />
-<input type="button" value="' . $lngImage . '" onclick="addtag(\'img\')"  />
-<input type="button" value="Video" onclick="addtag(\'video\')"  />
-<input type="button" value="' . $lngCode . '" onclick="addtag(\'code\')"  />
+<input type="button" title="ctrl+u" value="U" onclick="addtag(\'u\')"  style="width:30px; text-decoration:underline;" />
+<input type="button" title="ctrl+s" value="S" onclick="addtag(\'s\')"  style="width:30px; text-decoration:strike;" />
+<input type="button" title="ctrl+1" value="h1" onclick="addtag(\'h1\')"  style="width:30px; text-decoration:strike;" />
+<input type="button" title="ctrl+2" value="h2" onclick="addtag(\'h2\')"  style="width:30px; text-decoration:strike;" />
+<input type="button" title="ctrl+3" value="h3" onclick="addtag(\'h3\')"  style="width:30px; text-decoration:strike;" />
+<input type="button" title="ctrl+m" value="' . $lngImage . '" onclick="addtag(\'img\')"  />
+<input type="button" title="ctrl+h"  value="Video" onclick="addtag(\'video\')"  />
+<input type="button" title="ctrl+y"  value="Youtube" onclick="addtag(\'youtube\')"  />
+<input type="button" title="ctrl+t"  value="Vimeo" onclick="addtag(\'vimeo\')"  />
+<input type="button" title="ctrl+q"  value="' . $lngCode . '" onclick="addtag(\'code\')"  />
+<input type="button" title="ctrl+r"  value="Normal" onclick="addtag(\'remove\')"  />
 <input id="linkUrl" style="width:16%;" type="text" value="' . $cnfHome . '" />
-<input type="button" value="Link" onclick="addtag(\'a\')"  />
+<input type="button" title="ctrl+e"  value="Link" onclick="addtag(\'a\')"  />
+<input type="button" title="ctrl+n"  value="UnLink" onclick="addtag(\'unlink\')"  />
 <input id="linkUrlTag" style="width:20%;" type="text" value="' . $cnfHome . 'index.php/' . $cnfSubject . '/' . '" />
-<input type="button" value="Tag" onclick="addtag(\'at\')"  />
-<input type="checkbox" name="no" id="no" value="' . $_SESSION['iduserx'] . '" checked>' . $lngNotify;
+<input type="button" title="ctrl+g"  value="Tag" onclick="addtag(\'at\')"  />';
+if(isset($_SESSION['iduserx']))$strBoxPost .='<input type="checkbox" name="no" id="no" value="' . $_SESSION['iduserx'] . '" checked>' . $lngNotify;
 if ($cnfPermaLink == 0)
   {
     $posVar  = strpos($_SERVER['REQUEST_URI'], "index.php/");
@@ -559,7 +567,7 @@ echo $cnfHome . $cnfJava;
 ?>" type="text/javascript"></script>
 </head>
 <body>
-<div class="box1">
+<div class="box1" >
 <a href="<?php
 echo $cnfHome;
 ?>" alt="<?php
@@ -573,67 +581,142 @@ echo $cnfHeaderText;
 echo $cnfHome . $cnfLogo;
 ?>" /></a>
 <div class="boxAlignVertical">
+<h1 class='h1Vertical'><?php
+echo $cnfHeaderText;
+?></h1>
 <?php
 if (isset($_SESSION['iduserx']))
   {
-	$_SESSION['return']="index.php";
-    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='" . $cnfHome . "logout.php'>¿Salir?</a>";
+	 $_SESSION['return']="index.php";
+    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='". $cnfHome ."logout.php'>¿Salir?</a>";
     if ($_SESSION['iduserx'] == $cnfAdm)
       {
         echo "<a class='aLogin' href='" . $cnfHome . "admin.php'>" . $lngAdm . "</a>";
       }
   }
 else
-  {	  
-    echo "<a class='aLogin' href='" . $cnfHome . "login.php'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
-    echo "<a class='aLogin' href='" . $cnfHome . "register.php'>" . $lngReg . "</a>";
+  {
+    echo "<a class='aLogin' href='".$cnfHome."login.php'>" . $lngEnter . "&nbsp;|&nbsp; </a>";
+    echo "<a class='aLogin' href='".$cnfHome."register.php'>" . $lngReg . "</a>";
+  }
+if ($cnfHomeCacheTime != "" && $cnfHomeCacheTime != "0" && !isset($_SESSION['iduserx']))
+  {
+    $cache = new SimpleCachePhp(__FILE__, $cnfHomeCacheTime);
   }
 ?>
+
 </div>
-<div class="boxTools">
+<div class="searchBox">
 <?php
-if ($cnfFbFan != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Facebook" href="http://fb.com/' . $cnfFbFan . '" target="_blank" />Facebook</a>';
-  }
-if ($cnfTwFollow != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Twitter" href="https://twitter.com/' . $cnfTwFollow . '" target="_blank" />Twitter</a>';
-  }
-if ($cnfGoogleInsignia != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Google Plus" href="https://plus.google.com/' . $cnfGoogleInsignia . '" target="_blank" />Google+</a>';
-  }
-if ($cnfytChannel != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />Youtube</a>';
-  }
-  if ($cnfPinterestPage != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />Pinterest</a>';
-  }  
-if ($cnfInstagramPage != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />Instagram</a>';
-  } 
-if ($cnfLinkedinPage != "")
-  {
-    echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />Linkedin</a>';
-  }  
 if ($cnfXGoogle != "")
   {
-    echo '<input type="text" onKeyUp="fSearch0(event,0,\'' . $cnfHome . '\')" id="googleSearch" /><input id="btgoogleSearch" type="button" value="' . $lngSearch . '" onclick="fSearch(0,\'' . $cnfHome . '\')"	/>';
+ echo '<input type="text" onKeyUp="fSearch0(event,0,\'' . $cnfHome . '\')" id="googleSearch" /><input id="btgoogleSearch" type="button" value="' . $lngSearch . '" onclick="fSearch(0,\'' . $cnfHome . '\')"	/>';
   }
 else if ($cnfGoogleSearch != "")
   {
-    echo "<gcse:search></gcse:search>";
+echo "<gcse:search></gcse:search>";
   }
-?>
+  ?>
 </div>
+<div class="boxTools">
+<ul id="hexPanel">
+
+<?php
+
+
+
+if ($cnfFbFan != "")
+  {
+	echo '<li class="p1">
+  <a title="' . $lngFollow . ' en Facebook" href="http://fb.com/' . $cnfFbFan . '" target="_blank" >
+    <b></b>
+    <span>Facebook</span>
+    <em></em>
+  </a>
+</li>';  
+    //echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Facebook" href="http://fb.com/' . $cnfFbFan . '" target="_blank" />Facebook</a>';
+  }
+if ($cnfTwFollow != "")
+  {
+echo' 	  <li>
+  <a title="' . $lngFollow . ' en Twitter" href="https://twitter.com/' . $cnfTwFollow . '" target="_blank" />
+    <b></b>
+    <span>Twitter</span>
+    <em></em>
+  </a>
+</li>';
+    //echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Twitter" href="https://twitter.com/' . $cnfTwFollow . '" target="_blank" />Twitter</a>';
+  }
+if ($cnfGoogleInsignia != "")
+  {
+echo '<li class="p2">
+  <a  title="' . $lngFollow . ' en Google Plus" href="https://plus.google.com/' . $cnfGoogleInsignia . '" target="_blank" />
+    <b></b>
+    <span>Google+</span>
+    <em></em>
+  </a>
+</li>';	  
+    //echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Google Plus" href="https://plus.google.com/' . $cnfGoogleInsignia . '" target="_blank" />Google+</a>';
+  }
+if ($cnfytChannel != "")
+  {
+	  
+	echo'<li class="p2">
+  <a  class="inner" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />
+    <b></b>
+    <span>Youtube</span>
+    <em></em>
+  </a>
+</li>';
+   // echo '<a class="portadaLinkSocial" title="' . $lngSub . ' en Youtube" href="https://www.youtube.com/channel/' . $cnfytChannel . '" target="_blank" />Youtube</a>';
+  }
+if ($cnfPinterestPage != "")
+  {
+'<li class="p2">
+  <a  title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />
+    <b></b>
+    <span>Pinterest</span>
+    <em></em>
+  </a>
+</li>';
+   // echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Pinterest" href="https://www.pinterest.com/' . $cnfPinterestPage . '" target="_blank" />Pinterest</a>';
+  }  
+if ($cnfInstagramPage != "")
+  {
+echo '<li class="p1 p2">
+  <a  title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />
+    <b></b>
+    <span>Instagram</span>
+    <em></em>
+  </a>
+</li>';
+   // echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Instagram" href="https://www.instagram.com/' . $cnfInstagramPage . '" target="_blank" />Instagram</a>';
+  } 
+if ($cnfLinkedinPage != "")
+  {
+echo '<li class="p2">
+  <a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />
+    <b></b>
+    <span>Linkedin</span>
+    <em></em>
+  </a>
+</li>';
+//echo '<a class="portadaLinkSocial" title="' . $lngFollow . ' en Linkedin" href="https://www.linkedin.com/' . $cnfLinkedinPage . '" target="_blank" />Linkedin</a>';
+    
+  }   
+  
+
+?>
+</ul>
+
+</div>
+
 <div class="boxCat">
+
 <?php
 if ($arrForums == "")
   {
+    //echo $lngNotCat;
   }
 else
   {
@@ -652,9 +735,14 @@ else
         usort($arrayOfArrays, "cmp");
     for ($x = 0; $x < count($arrayOfArrays); $x++)
       {
-        echo '<a  title="' . $arrayOfArrays[$x][1] . '" href="' . $cnfHome . fCleanChar($arrayOfArrays[$x][0]) . '">' . $arrayOfArrays[$x][0] . '</a> | ';
+	echo'<a  class="linkCat" title="' . $arrayOfArrays[$x][1] . '" href="' . $cnfHome . fCleanChar($arrayOfArrays[$x][0]) . '"><div id="hexCat" class="hexagon-wrapper">		   
+		<div id="color0" class="hexagon2">
+	</div></div>'. $arrayOfArrays[$x][0] . '</a>';
+	
+		//echo '<div class="hexagon100"><span></span></div><br>';
       }
   }
+//echo "</aside>";
 ?>
 </div>
 </div>
@@ -672,7 +760,13 @@ if ($arrLinks != "")
         $item = explode("*", $line);
         if (isset($item[1]))
           {
-            echo "<li class='liLinks'><a class='linkNav' href='" . $item[0] . "' title='" . $item[0] . "'>" . $item[1] . "</a></li>\r\n";
+            //echo "<li class='liLinks'><a class='linkNav' href='" . $item[0] . "' title='" . $item[0] . "'>" . $item[1] . "</a></li>\r\n";
+			 echo '
+	<li class="liLinks"><div id="hexLink" class="hexagon-wrapper">		   
+		<div id="color1" class="hexagon2">
+	</div>
+	</div><a class="linkNav" href="' . $item[0] . '" title="' . $item[0] . '">' . $item[1] . '</a></li>
+	';
           }
       }
   }
@@ -804,14 +898,31 @@ if ($opcion == 0)
                         $strPermalink = $cnfHome . $pathForumTotal . $auxBlog . "index.php/" . $fileName . "/";
                     else if ($cnfPermaLink == 2)
                         $strPermalink = $cnfHome . $pathForumTotal . $auxBlog . "?m=" . $fileName;
+					
+					$thumbnail=thumbnail($fileName,$cnfHome,$cnfLogo,$cnfThumbnail);
                     if ((int) $file[2] == 0)
                       {
-                        echo "<div class='boxForum2in'><h5 class='h5Left'><a href='" . $strPermalink . "'>" . str_replace("-", " ", $fileName) . "</a></h5>&nbsp;&nbsp;" . $lngModified . ":&nbsp;&nbsp;<time class='entry-date' datetime='" . gmdate("D, d M Y H:i:s O", (int) $file[1]) . "'>" . gmdate("<b>d-M-Y</b> G:i", (int) $file[1]) . "</time></div>";
+						
+				 
+				 
+                        echo "<a href='" . $strPermalink . "' title='".str_replace("-", " ", $fileName)."'><div class='boxForum2in'>";						
+						echo '<div class="hexagon75" style="background-image:url('.$thumbnail.');">
+						<div class="hexTop75"></div>			
+						<div class="hexBottom75"></div>
+						</div>';						
+						echo "<h5 class='h5Left'>" . str_replace("-", " ", $fileName) . "</h5>&nbsp;&nbsp;" . $lngModified . ":&nbsp;&nbsp;<time class='entry-date' datetime='" . gmdate("D, d M Y H:i:s O", (int) $file[1]) . "'>" . gmdate("<b>d-M-Y</b> G:i", (int) $file[1]) . "</time></div></a>";
+				
                         $alg = 1;
                       }
                     else
                       {
-                        echo "<div class='boxForumPin'><h5 class='h5Left'><a href='" . $strPermalink . "'>" . str_replace("-", " ", $fileName) . "</a></h5>&nbsp;&nbsp;" . $lngLastAnwser . ":&nbsp;&nbsp;<time class='entry-date' datetime='" . gmdate("D, d M Y H:i:s O", (int) $file[2]) . "'>" . gmdate("<b>d-M-Y</b> G:i", (int) $file[2]) . "</time></div>";
+						  echo "<a href='" . $strPermalink . "' title='".str_replace("-", " ", $fileName)."'><div class='boxForumPin'>";						
+						echo '<div class="hexagon75" style="background-image:url('.$thumbnail.');">
+						<div class="hexTop75"></div>			
+						<div class="hexBottom75"></div>
+						</div>';						
+						echo "<h5 class='h5Left'>" . str_replace("-", " ", $fileName) . "</h5>&nbsp;&nbsp;" . $lngModified . ":&nbsp;&nbsp;<time class='entry-date' datetime='" . gmdate("D, d M Y H:i:s O", (int) $file[1]) . "'>" . gmdate("<b>d-M-Y</b> G:i", (int) $file[1]) . "</time></div></a>";
+                        //echo "<div class='boxForumPin'><h5 class='h5Left'><a href='" . $strPermalink . "'>" . str_replace("-", " ", $fileName) . "</a></h5>&nbsp;&nbsp;" . $lngLastAnwser . ":&nbsp;&nbsp;<time class='entry-date' datetime='" . gmdate("D, d M Y H:i:s O", (int) $file[2]) . "'>" . gmdate("<b>d-M-Y</b> G:i", (int) $file[2]) . "</time></div>";
                         $alg = 1;
                       }
                     $adsx++;
@@ -819,15 +930,14 @@ if ($opcion == 0)
                       {
                         $adsx = 0;
 ?>
-<center>
+<div id="ad" style="text-align:center;padding:25px;">
 <?php
-                        if ($cnfAdsTitle != "")
-                            echo "<br><i>" . $cnfAdsTitle . "</i><br>";
+                        if ($cnfAdsTitle != "")echo "<br>".$cnfAdsTitle."<br>";
 ?>
 <?php
                         echo $cnfAdsense;
 ?>
-</center>
+</div>
 <?php
                       }
                   }
@@ -860,14 +970,16 @@ if ($opcion == 0)
 					echo ' | ' . $lngIn . ' <input type="text" style="width:20px" name="ti" id="ti" value="0"> ' . $lngHours;	
                     if ($blogMode == 0){
                         echo '<input type="checkbox" name="po" id="po" value="1" checked>' . $lngIndex;
-					    echo ' | Index Image:<input type="text" name="poimg" id="poimg" value="">';
 					}
 						
 						if($cnfAdsense != ""){
 						echo '<input type="button" alt="ctrl+4" value="adsense" onclick="addtag(\'adsense\')" style="width:65px;margin-left:10px; font-weight:bold;" />';
+						//echo '<textarea id="adsenseCode" name="adsenseCode" style="display:none;" />'.$cnfAdsense.'</textarea>';
+					
 						}
 						
                   }
+				 echo ' | Index Image:<input type="text" name="poimg" id="poimg" value="">'; 
               }
 ?>
 <input type="text" name="w" id="w" onKeyUp='feChangeW()' placeholder="Title" autocomplete="off" value="<?php
@@ -878,13 +990,18 @@ if ($opcion == 0)
             echo $strBoxPost;
 ?>
 <div id="dvCont">0</div>
-<textarea id="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' onMouseUp='feSel()' name="txtE"><?php
+<!--<textarea id="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' onMouseUp='feSel()' name="txtE"><?php
             echo $body;
-?></textarea>
-<br>
+?></textarea>-->
+<textarea name="hide" id="hide" style="display:none;"></textarea>
+<div spellcheck="true"  contentEditable="true" id="txtE" name="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' onMouseUp='feSel()' >
+<?php
+echo $body;
+?>
+</div>  
 <input type="text" value="<?php
             echo $tag;
-?>" name="u" id="u" placeholder="tag1,tag2" autocomplete="off" style="width:73%">
+?>" name="u" id="u" placeholder="tag1,tag2" autocomplete="off" style="width:73%"><input type="button" title="" value="Link Tags" onclick="linktag()"  /><input type="button" title="" value="Link <?php echo $forumReal;?>" onclick="linkCat(<?php echo "'".$forumReal."','".$cnfHome.$strLink.$forumReal.$strLinkEnd."'";?>)"  />
 <br style="clear:both">
 <input type="submit" name="submit" id="submit" value="<?php
             echo $lngCreate;
@@ -941,13 +1058,32 @@ else if ($opcion == 1)
                       {
                         $notag = 1;
                         $file  = basename($file, ".xml") . PHP_EOL;
-                        $strEnlaces .= "<div class='boxTag'><h5 class='h5Left'><a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</a></h5>&nbsp;&nbsp;Última respuesta:&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div>";
+						
+						 $thumbnail=thumbnail($file,$cnfHome,$cnfLogo,$cnfThumbnail);
+				 
+                        $strEnlaces .="<a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>";						
+						$strEnlaces .='<div class="hexagon75" style="background-image:url('.$thumbnail.');">
+						<div class="hexTop75"></div>			
+						<div class="hexBottom75"></div>
+						</div>';						
+						$strEnlaces .="<h5 class='h5Left'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</h5>".$lngModified.":&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div></a>";
+						
+                        //$strEnlaces .= "<div class='boxTag'><h5 class='h5Left'><a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</a></h5>&nbsp;&nbsp;Última respuesta:&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div>";
                       }
                   }
                 else if (strpos(strtolower(utf8_encode($file)), $strCategoria, 0) !== false)
                   {
                     $notag = 1;
-                    $strEnlaces .= "<div class='boxTag'><h5 class='h5Left'><a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</a></h5>&nbsp;&nbsp;Última respuesta:&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div>";
+					 $thumbnail=thumbnail($file,$cnfHome,$cnfLogo,$cnfThumbnail);
+				 
+                        $strEnlaces .="<a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>";						
+						$strEnlaces .='<div class="boxForum2in"><div class="hexagon75" style="background-image:url('.$thumbnail.');">
+						<div class="hexTop75"></div>			
+						<div class="hexBottom75"></div>
+						</div>';						
+						$strEnlaces .="<h5 class='h5Left'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</h5>".$lngModified.":&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div></a>";
+						
+                    //$strEnlaces .= "<div class='boxTag'><h5 class='hr5Left'><a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</a></h5>&nbsp;&nbsp;Última respuesta:&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div>";
                     $xtag++;
                     if ($cnfAdsense != "" && $xtag >= intval($cnfAdsTag))
                       {
@@ -1068,7 +1204,7 @@ else
     $adsx   = 0;
     foreach ($xml->p as $repuesta)
       {
-        if ($xr == 0 && $repuesta->u == $_SESSION['iduserx'])
+        if(isset($_SESSION['iduserx']))if ($xr == 0 && $repuesta->u == $_SESSION['iduserx'])
           {
             $author = 1;
           }
@@ -1078,14 +1214,17 @@ else
             $subStyle       = '';
             $subStyle       = 'style="background-color:#FFF;"';
             $boxPostPortada = 'boxPostPortadaR';
+			$headerCat="";
             if ($xr % 2 != 0)
               {
                 $subStyle = 'style="background-color:#efefef;"';
               }
             if ($xr != 0 && $xr == $xml->p[0]->f)
                 $subStyle = 'style="background-color:#D6FFAE;"';
-            if ($xr == 0)
-                $boxPostPortada = 'boxPostPortada';
+            if ($xr == 0){
+                $boxPostPortada = 'boxPostCat';
+				$headerCat = 'headerCat';
+			}
             echo "\r\n";
 ?>
 <article class="<?php
@@ -1095,7 +1234,7 @@ else
 ?> id="<?php
             echo $xr;
 ?>">
-<header>
+<header class="<?php echo $headerCat;?>">
 <?php
             if ($xr == 0)
                 echo "<h1 class='h2Title'>" . $repuesta->t . "</h1>\r\n";
@@ -1265,6 +1404,77 @@ else
             echo "<span>" . $footerTag . "</span><br>";
 ?>
 </div>
+<?php
+if($cnfRelatedSubject!=""
+&& ($xr == 0 && $strTags != "0" && $strTags != "")
+){
+?>
+<div class="RelatedTags">
+<?php
+
+    $notag        = 0;
+    $strEnlaces   = "";
+	if (!isset($strFilesT))
+            $strFilesT = "";
+    if ($handle = opendir('.'))
+      {
+        $xtag = 1;
+        
+	for ($xf = 0; $xf < count($strTags); $xf++)
+      {
+	$strCategoria = filter_var($strTags[$xf], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $strCategoria = urldecode($strTags[$xf]);
+        while (false !== ($file = readdir($handle)))
+          {
+            $fechaRss = gmdate("D, d M Y H:i:s O", (int) filectime($file));
+            if (filemtime($file) !== FALSE)
+                $fechaRss = gmdate("D, d M Y H:i:s O", (int) filemtime($file));
+				$fecha = gmdate("<b>d-M-Y</b> G:i", (int) filectime($file));
+            if (filemtime($file) !== FALSE)
+                $fecha = gmdate("<b>d-M-Y</b> G:i", (int) filemtime($file));
+				$posVarTag = strrpos($file, "_T_");
+				
+            if ($file!=$w.".xml" && $file != "cache" && $file != "." && $file != ".." && 
+			strtolower(substr($file, strrpos($file, '.') + 1)) == 'xml' && strlen($file) > 6 
+			&& strpos($strFilesT, utf8_encode($file) . ";", 0) === false && ($posVarTag === false||($_SESSION['iduserx'] == $cnfAdm 
+			|| $_SESSION['iduserx'] == $forumMod)))
+              {
+				  //die($strCategoria);
+                if (strpos(strtolower(utf8_encode($file)), $strCategoria, 0) !== false)
+                  {           
+
+ $thumbnail=thumbnail($file,$cnfHome,$cnfLogo,$cnfThumbnail);
+				 
+                        /*echo "<div class='boxForum2in'>";						*/
+						echo '<a href="' . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . '"><div class="boxRelated">						
+						<div class="hexagon75" style="background-image:url('.$thumbnail.');">
+						<div class="hexTop75"></div>			
+						<div class="hexBottom75"></div>
+						</div>
+						&nbsp;&nbsp;&nbsp;'. str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . '
+						</div></a>';						
+						
+			  
+/*                    echo "<a class='aFloatMessage'
+href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'><div class='boxRelated'><h5 class='h5Left'>". str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . " </h5>&nbsp;&nbsp;Última respuesta:&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div></a>";*/
+						$xtag++;
+						//echo $xtag.">".intval($cnfRelatedSubject)."<br>";
+                     if($xtag>intval($cnfRelatedSubject))break 2;
+					
+                  }
+                //
+              }
+			  
+			//if($xtag>intval($cnfRelatedSubject))break; 
+          }//while
+		  // if($xtag>intval($cnfRelatedSubject))break;
+		}//for
+      }
+?>
+</div>
+<?php
+}
+?>
 </article>
 <br style="clear:both">
 <?php
@@ -1350,21 +1560,29 @@ else
 					echo ' | ' . $lngIn . ' <input type="text" style="width:20px" name="ti" id="ti" value="0"> ' . $lngHours;	
                     if ($blogMode == 0){
                         echo '<input type="checkbox" name="po" id="po" value="1" checked>' . $lngIndex;
-					    echo ' | Index Image:<input type="text" name="poimg" id="poimg" value="">';
+					    
 						}
 						
 						if($cnfAdsense != ""){
 						echo '<input type="button" alt="ctrl+4" title="ctrl+4" value="adsense" onclick="addtag(\'adsense\')" style="width:65px;margin-left:10px; font-weight:bold;" />';
+						//echo '<textarea id="adsenseCode" name="adsenseCode" style="display:none;" />'.$cnfAdsense.'</textarea>';
 						}
                   }
+				  echo ' | Index Image:<input type="text" name="poimg" id="poimg" value="">';
               }
 ?>
 <!--<input type="text" name="w" id="w" placeholder="Title" autocomplete="off" style="width:73%;display:none;">-->
 <div id="dvCont">0</div>
-<textarea id="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' onMouseUp='feSel()' name="txtE"><?php
+<!--<textarea id="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' onMouseUp='feSel()' name="txtE"><?php
             if (isset($_SESSION['answer']))
                 echo $_SESSION['answer'];
-?></textarea>
+?></textarea>-->
+<textarea name="hide" id="hide" style="display:none;"></textarea>
+<div spellcheck="true"  contentEditable="true" id="txtE" name="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' >
+<?php
+if (isset($_SESSION['answer']))echo $_SESSION['answer'];
+?>
+</div>  
 <br>
 <input type="text" name="u" id="u" placeholder="tag1,tag2" autocomplete="off" style="width:73%;display:none">
 <input type="submit" name="submit" id="submit" value="Responder"/>

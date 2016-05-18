@@ -103,7 +103,7 @@ echo $cnfHeaderText;
 <?php
 if (isset($_SESSION['iduserx']))
   {
-	 $_SESSION['return']="index.php";
+	 $_SESSION['return']="index.php";	 
     echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='logout.php'>¿Salir?</a>";
     if ($_SESSION['iduserx'] == $cnfAdm)
       {
@@ -282,6 +282,7 @@ if ($arrLinks != "")
     echo "</ul>";
   }
 echo '<br style="clear:both;">';
+$strPaginacion="";
 if (file_exists("i.xml"))
   {
     $xmlP = new DOMDocument();
@@ -305,17 +306,18 @@ if (file_exists("i.xml"))
         $desde = $_GET['p'] + 1;
         if ($back >= 0 && $_GET['p'] != 0)
           {
-            echo "<a href='" . $cnfHome . "?p=" . $back . "'/><b><<</b> </a>";
+            $strPaginacion.= "<a href='" . $cnfHome . "?p=" . $back . "'/><b><<</b> </a>";
           }
-        echo "<span class='pagination'>Mensajes del :[" . $desde . " al " . $next . "]</span>";
+        $strPaginacion.= "<span class='pagination'>Mensajes del :[" . $desde . " al " . $next . "]</span>";
         if ($nnext > 0 && $nnext <= count($xmlP->h))
           {
-            echo "<a href='" . $cnfHome . "?p=" . $next . "'/><b>>></b></a>";
+            $strPaginacion.= "<a href='" . $cnfHome . "?p=" . $next . "'/><b>>></b></a>";
           }
       }
     $adsx  = 0;
     $class = 0;
-    echo '<br style="clear:both;">';
+    $strPaginacion.= '<br style="clear:both;">';
+	echo $strPaginacion;
     foreach ($xmlP->h as $programado)
       {
 		$posVarTag = strrpos($programado->t, "_T_");
@@ -456,7 +458,19 @@ else
           }
       }
   }
+echo $strPaginacion;
+
+if($cnfTwLineIndex!="")
+ {
+$twLine = explode("_", $cnfTwLineIndex);
+echo '<center><a class="twitter-timeline" href="https://twitter.com/search?q='.$twLine[0].'" data-widget-id="'.$twLine[1].'">Tweets sobre '.$twLine[0].'</a></center>';
 ?>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+<?php
+}
+?>
+
 <footer>
 <?php
 if ($cnfNumberFeed > 0)

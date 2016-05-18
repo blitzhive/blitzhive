@@ -5,9 +5,10 @@ include_once('header.php');
 $user="";
 $password="";
 $tr=0;
+//echo $_SESSION['return'];
 if(isset($_SESSION['iduserx']))
 {
-echo "<h1> ".$lngHi." ".$_SESSION['iduserx']."</h1>. ".$lngConnected."<a href='logout.php'>".$lngLogOut."</a>";
+ $logged="<h1> ".$lngHi." ".$_SESSION['iduserx']."</h1>".$lngConnected."<a href='logout.php'>".$lngLogOut."</a>";
 }else if(isset($_GET["recover"])){
 die('<h1>'.$lngRecoverPass.'</h1><form id="form1" name="form1" method="post" action="login.php"><br>'.$lngUserName.':<input id="recover" name="recover" type="text" onclick="this.value=\'\'" onchange="submit.value=\'enviar\'" placeholder="'.$lngName.'" value="'.$lngName.'"/><input type="submit" name="submit" id="submit" value="'.$lngEnter.'" /><br></form>');
 }else if(isset($_POST["recover"])&&$_POST["recover"]!=""){
@@ -16,7 +17,9 @@ if (file_exists($cnfUsers."/".$_POST["recover"][0].".php")){
 		
 		$contenido = file_get_contents($cnfUsers."/".$_POST["recover"][0].".php");
 	
-		$posA = strpos($contenido,$user."=",0);
+		$posA = strpos($contenido,$_POST["recover"]."=",0);		
+		//die($_POST["recover"]);
+		//die($posA."-");
 		if($posA!==false){
 		$posB = strpos($contenido,"=",$posA);
 		$posC = strpos($contenido,",",$posB);
@@ -44,8 +47,8 @@ if (file_exists($cnfUsers."/".$_POST["recover"][0].".php")){
 		
 	
 		
-	$titulo= 'Acceso cuenta';
-	$mensaje   = "Código:".$strRecover;
+	$titulo= 'Recuperar cuenta';
+	$mensaje   = "Introduzca el código: ".$strRecover;
 	$cabeceras = 'From: '.$cnfEmail. "\r\n" .	 'Reply-To: '.$cnfEmail. "\r\n".'X-Mailer: PHP/'.phpversion();
 	if(mail($email, $titulo, $mensaje, $cabeceras)){
 	$strMailCheck="<h1>".$lngEmailSend." :)</h1>";
@@ -53,7 +56,11 @@ if (file_exists($cnfUsers."/".$_POST["recover"][0].".php")){
 	$strMailCheck="<h1>".$lngEmailNotSend." :(</h1>";
 	}
 	$_SESSION['sheep'] = $_POST["recover"];
-	die(header( "refresh:0;url=user.php/".$_POST["recover"]));
+	/**Go out by anyway**/
+	if(isset($_SESSION['enviadorecover']))unset($_SESSION['enviadorecover']);
+	if(isset($_SESSION['iduserx']))unset($_SESSION['iduserx']);
+	/***/
+	die(header( "refresh:0;url=user.php/".$_POST["recover"]."/"));
 		}else{
 		echo "<h1>".$lngUserNot." :(</h1>";
 		}
@@ -97,6 +104,7 @@ if($user!=""&&$password!=""){
 		
 		if($cnfCookie!=""&&isset($_POST['cookie'])){
 			setcookie( "iduserx", $user,  time() + (10 * 365 * 24 * 60 * 60)) ;
+			setcookie( "level", $intVotes,  time() + (10 * 365 * 24 * 60 * 60)) ;
 		}
 		
 	//die($_SESSION['iduserx']);
@@ -121,7 +129,7 @@ if($user!=""&&$password!=""){
 
 ?>
 <head>
-<title><?php echo $cnfTitle;?> | Login</title>
+<title><?php echo $cnfTitle;?> | Login </title>
 </head>
 <body>
 <center>
@@ -130,11 +138,16 @@ if($user!=""&&$password!=""){
 <a href="<?php echo $_SESSION['return'];?>"><?php echo "Volver a ".$_SESSION['return'];?></a> >
 Login
 </nav>
+  <?php
+  if(!isset($_SESSION['iduserx']))
+	{
+  ?>
 <article>
   <header>
 	<h1  class='h1GrayCenter'>Conectarse</h1>
   </header>
   <section>
+
 	<form id="form1" name="form1" method="post" action="login.php">
 	
 	<input onclick="this.value=''" placeholder="<?php echo $lngUser;?>" value="<?php echo $lngUser;?>" name="user" id="user" maxlength="15" type="text" />	<br>
@@ -145,17 +158,26 @@ Login
 	if($cnfQuestion1!="")echo $cnfQuestion1.': <input id="answer1" name="answer1" type="text" onclick="this.value=\'\'" placeholder="Respuesta" value="Respuesta"/><br>';
 	
 	}
-	if($cnfCookie!="")echo "Recordar:<input type='checkbox' name='cookie' id='cookie'/><br>";
+	if($cnfCookie!="")echo "Recordar:<input type='checkbox' name='cookie' id='cookie' checked/><br>";
 	?>
 	
 	<input type="submit" name="submit" id="submit" value="Conectar" /><br>
 	</form>
+	
 	<a href="register.php"><?php echo $lngReg;?></a>
 	<a href="login.php?recover=1"><?php echo $lngLostPass;?></a>
   </section>
+  
 </article>
+	<?php
+	} else {
+		
+	echo $logged;
+	}
+	?>
 <footer>
 <?php
+echo $cnfFooterText;
 include('footer.php');
 ?>
 </footer>

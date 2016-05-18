@@ -1,13 +1,35 @@
 <?php 
 if(basename(__FILE__)== basename($_SERVER["SCRIPT_FILENAME"]))die(); 
-include('lang-'.$cnfLanguage.'.php');
+
+
+if(cnfAutoLanguage!="checked"){include('lang-'.$cnfLanguage.'.php');}
+else{
+$lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+switch ($lang){
+	case "es":
+    include('lang-es-ES.php');
+        break;        
+    default:
+	include('lang-en-US.php');
+       break;
+}
+
+}
+
+
 if($cnfError=="checked"){
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
 }
-if(isset($_COOKIE['iduserx']))$_SESSION['iduserx']=$_COOKIE['iduserx'];
-
+if(isset($_COOKIE['iduserx'])){
+	if($_COOKIE['iduserx']!=""){
+	if (!isset($_SESSION)) { session_start(); }	
+	$_SESSION['iduserx']=$_COOKIE['iduserx'];
+	$_SESSION['level']=$_COOKIE['level'];
+	}
+}
+//echo $_COOKIE['iduserx']."-->".$_SESSION['iduserx'];
 function cmp($a, $b)
 {
     return $a[2]- $b[2];
@@ -119,22 +141,40 @@ $email="";
 if($id==3)return $email;
 }
 
-function thumbnail($thumbnail,$cnfHome,$cnfLogo,$cnfThumbnail){
-if($cnfThumbnail!=""){
-	if(is_file($thumbnail.".jpg"))$thumbnail=$thumbnail.".jpg";
-	else if	(is_file($thumbnail.".jpeg"))$thumbnail=$thumbnail.".jpeg";
-	else if	(is_file($thumbnail.".png"))$thumbnail=$thumbnail.".png";
-	else if	(is_file($thumbnail.".gif"))$thumbnail=$thumbnail.".gif";
-	else if	(is_file($thumbnail.".bmp"))$thumbnail=$thumbnail.".bmp";
+function thumbnail($thumbnail,$cnfHome,$cnfLogo,$cnfThumbnail){	
+if($cnfThumbnail!=""){	
+$thumbnail="../".$cnfThumbnail."/".$thumbnail;
+//echo $thumbnail.".jpg";
+	if(file_exists($thumbnail.".jpg"))$thumbnail=$thumbnail.".jpg";
+	else if	(file_exists($thumbnail.".jpeg"))$thumbnail=$thumbnail.".jpeg";
+	else if	(file_exists($thumbnail.".png"))$thumbnail=$thumbnail.".png";
+	else if	(file_exists($thumbnail.".gif"))$thumbnail=$thumbnail.".gif";
+	else if	(file_exists($thumbnail.".bmp"))$thumbnail=$thumbnail.".bmp";
 	else $thumbnail=$cnfHome.$cnfLogo;
+	
+	
 }else{
-    $thumbnail=$cnfHome.$cnfLogo;
-	die($thumbnail);
+    $thumbnail=$cnfHome.$cnfLogo;	
 }
+$thumbnail=str_replace("../",$cnfHome,$thumbnail);
 return $thumbnail;
 }
 //fProgramadas();
 if($cnfAutoPosting!="")fProgramadas();
+
+
+if(isset($_GET["p"])){
+	$_SESSION['parent']=filter_var($_GET["p"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+	setcookie( "parent", $_SESSION['parent'],  time() + (10 * 365 * 24 * 60 * 60)) ;
+//$parent=$_SESSION['parent'];
+}else if(isset($_COOKIE['parent']))
+{
+$_SESSION['parent']=filter_var($_COOKIE['parent'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);	
+}
+	
+
+//echo $_SESSION['parent'];
+
 ?>
 <!DOCTYPE html>
 <html itemtype="http://schema.org/WebPage" lang="<?php echo $cnfLanguage;?>">
@@ -145,11 +185,11 @@ if($cnfAutoPosting!="")fProgramadas();
 if($cnfGoogleAuthor!="")echo '<link rel="author" href="'.$cnfGoogleAuthor.'" />';
 if($cnfGoogleInsignia!="")echo '<link href="https://plus.google.com/'.$cnfGoogleInsignia.'" rel="publisher"/>';
 ?>
-
 <script src="<?php echo $cnfHome.$cnfJava;?>" type="text/javascript" ></script>
-
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="content-language" content="<?php echo $cnfLanguage;?>" />
 <meta name="viewport" content="width=device-width">
+
 <?php
 $time = microtime();
 $time = explode(' ', $time);

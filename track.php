@@ -8,15 +8,17 @@ error_reporting(-1);*/
 //track
 $ip="0";
 if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-    $ip = $_SERVER['HTTP_CLIENT_IP'];
+    $ip = $_SERVER['HTTP_CLIENT_IP'];	
 } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 } else {
     $ip = $_SERVER['REMOTE_ADDR'];
 }
 //echo $ip;
-if($ip!="0"){
 
+
+if($ip!="0"){
+	$ip=gethostbyaddr($ip);	
 	$xml2 = new DOMDocument();
 	$xml2->encoding= 'utf-8';
 	if(!isset($tr))$tr=0;

@@ -3,6 +3,7 @@ if (!isset($_SESSION)) { session_start(); }
 $_SESSION['return']=$_SERVER["REQUEST_URI"];
 $blogMode = 0;
 $cnfBlogFolder="";
+$cnfLanguageFb= str_replace("-","_",$cnfLanguage);
 if (basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]))
   {
     $blogMode = 1;
@@ -67,22 +68,27 @@ if ($cnfPermaLink == 0)
     $strLinkCat  = "/";
     $strLinkUser = "/";
   }
-else if ($cnfPermaLink == 1)
+/*else if ($cnfPermaLink == 1)
   {
     $strLink = "?m=";
   }
 else
   {
     $strLink = "?";
-  }
+  }*/
 $posCache  = strrpos($_SERVER['REQUEST_URI'], $strLink);
 $posVarCat = strrpos($_SERVER['REQUEST_URI'], "index.php/" . $cnfSubject . "/");
+$posVarPost = strrpos($_SERVER['REQUEST_URI'], "/index.php/");
+$metaShare="";
 if ($posVarCat !== false)
   {
     $strCategoria = substr($_SERVER['REQUEST_URI'], $posVarCat + strlen("index.php/" . $cnfSubject . "/"));
     if (substr($strCategoria, -1) == "/")
         $strCategoria = substr($strCategoria, 0, -1);
     $strCategoria = utf8_decode($strCategoria);
+  }
+  else if($posVarPost!==false){
+
   }
   
 if ($blogMode == 0)
@@ -149,16 +155,19 @@ $forumReal = "";
 $forumDes  = "";
 $forumMod  = "";
 $forumSel  = $lngMoveTo . '<select name="selMove" id="selMove">';
+$forumTl  = "";
 foreach (explode(";", $arrForums) as $line)
   {
     $item = explode("*", $line);
+	
     if (isset($item[4]))
         if ($item[4] == str_replace(" ", "-", $pathForum))
           {
             $forumName = $item[0];
             $forumDes  = $item[1];
-            $forumMod  = $item[3];
-			$forumReal = $item[4];
+			$forumMod  = $item[3];
+			if(isset($item[4]))$forumReal = $item[4];
+			if(isset($item[5]))$forumTl = $item[5];
             if (isset($_SESSION['iduserx']))
                 if ($forumMod == $_SESSION['iduserx'])
                   {
@@ -174,7 +183,7 @@ foreach (explode(";", $arrForums) as $line)
 $forumSel .= '</select><input type="submit" name="submitMove" id="submitMove" value="Mover"></form>';
 
 $strBoxPost="";
-if(intval($cnfMax)!=0)$strBoxPost.='<span style="font-size:100%;float:left;margin:10px;"><b>Upload Files:</b></span><iframe src="'.$cnfHome.'/upload.php" width="95%" height="100%"  scrolling="no"></iframe>';
+if(intval($cnfMax)!=0)$strBoxPost.='<span style="font-size:100%;float:left;margin:5px;"><b>Upload Files:</b></span><iframe src="'.$cnfHome.'/upload.php" width="100%" height="100%" name="uploadFrame"  scrolling="no"></iframe>';
 $strBoxPost .= '
 <span style="font-size:90%;float:left;"><i>Hotkeys: </i><b>ctrl+</b>b=(bold) <b>|</b> i=(italic) <b>|</b> u=(underline) <b>|</b> s=(strike) <b>|</b> 1=(h1) <b>|</b> 2=(h2) <b>|</b> 3=(h3) <b>|</b> m=(img) <b>|</b> h=(video) <b>|</b> y=(youtube)  <b>|</b> t=(vimeo) <b>|</b> q=(code)  <b>|</b> e=(link) <b>|</b> g=(tag)</span>
 <br style="clear:both;">
@@ -193,8 +202,8 @@ $strBoxPost .= '
 <input type="button" title="ctrl+r"  value="Normal" onclick="addtag(\'remove\')"  />
 <input id="linkUrl" style="width:16%;" type="text" value="' . $cnfHome . '" />
 <input type="button" title="ctrl+e"  value="Link" onclick="addtag(\'a\')"  />
-<input type="button" title="ctrl+n"  value="UnLink" onclick="addtag(\'unlink\')"  />
-<input id="linkUrlTag" style="width:20%;" type="text" value="' . $cnfHome . 'index.php/' . $cnfSubject . '/' . '" />
+<input type="button" title="ctrl+k"  value="UnLink" onclick="addtag(\'unlink\')"  />
+<input id="linkUrlTag" style="width:20%;" type="text" value="' . $cnfHome .$pathForumTotal. '/index.php/' . $cnfSubject . '/' . '" />
 <input type="button" title="ctrl+g"  value="Tag" onclick="addtag(\'at\')"  />';
 if(isset($_SESSION['iduserx']))$strBoxPost .='<input type="checkbox" name="no" id="no" value="' . $_SESSION['iduserx'] . '" checked>' . $lngNotify;
 if ($cnfPermaLink == 0)
@@ -209,62 +218,34 @@ if ($cnfPermaLink == 0)
         header("refresh:0;url=" . $_SERVER['REQUEST_URI']);
       }
   }
-else
-    $posVar = strrpos($_SERVER['REQUEST_URI'], "?");
+/*else
+    $posVar = strrpos($_SERVER['REQUEST_URI'], "?");*/
 $rss    = "";
 $opcion = 0;
 $w      = "";
-if ($posVar === false && !isset($_GET[$cnfSubject]))
+
+if ($posVar === false )
   {
+	
     if ($blogMode == 0)
       {
 ?>
-<meta name="Keywords" content="<?php
-        echo $forumName;
+<meta name="Keywords" content="<?php echo $forumName;
 ?>">
-<meta name="Description" content="<?php
-        echo $forumDes;
+<meta name="Description" content="<?php echo $forumDes;
 ?>">
-<link rel="canonical" href="<?php
-        echo $cnfHome . $pathForumTotal;
+<link rel="canonical" href="<?php echo $cnfHome . $pathForumTotal;
 ?>" />
-<link rel="alternate" type="application/rss+xml" title="<?php
-        echo $forumDes;
-?>" href="<?php
-        echo $cnfHome . "feed.php?s=" . $pathForumTotal . "&t=0";
-?>" />
-<meta itemprop="name" content="<?php
-        echo $forumDes;
-?>"/>
-<meta itemprop="description" content="<?php
-        echo $forumName . "," . $cnfKeywords;
-?>"/>
-<meta itemprop="image" content="<?php
-        echo $cnfHome . "" . $cnfLogo;
-?>"/>
-<meta property="og:type" content="website" />
-<meta property="og:title" content="<?php
-        echo $cnfTitle;
-?>" />
-<meta property="og:url" content="<?php
-        echo $cnfHome;
-?>" />
-<meta property="og:site_name" content="<?php
-        echo $cnfMetaDescription;
-?>" />
-<meta property="og:image" content="<?php
-        echo $cnfHome . "" . $cnfLogo;
-?>" />
-<meta property="og:locale" content="<?php
-        echo $cnfLanguage;
-?>" />
+<link rel="alternate" type="application/rss+xml" title="<?php echo $forumDes;
+?>" href="<?php echo $cnfHome . "feed.php?s=" . $pathForumTotal . "&t=0";?>" />
+
 <?php
-        if ($cnfFbFan != "")
+        /*if ($cnfFbFan != "")
           {
 ?><meta property="article:publisher" content="https://www.facebook.com/<?php
             echo $cnfFbFan;
 ?>" /><?php
-          }
+          }*/
 ?>
 <meta name="twitter:card" content="summary"/>
 <?php
@@ -337,15 +318,15 @@ if ($posVar === false && !isset($_GET[$cnfSubject]))
         echo $cnfHome . "" . $cnfLogo;
 ?>" />
 <meta property="og:locale" content="<?php
-        echo $cnfLanguage;
+        echo $cnfLanguageFb;
 ?>" />
 <?php
-        if ($cnfFbFan != "")
+      /*  if ($cnfFbFan != "")
           {
 ?><meta property="article:publisher" content="https://www.facebook.com/<?php
             echo $cnfFbFan;
 ?>" /><?php
-          }
+          }*/
 ?>
 <meta name="twitter:card" content="summary"/>
 <?php
@@ -380,17 +361,9 @@ if ($posVar === false && !isset($_GET[$cnfSubject]))
       }
     /***----------------TAGS----------------------***/    
   }
-else if (isset($_GET[$cnfSubject]) && $_GET[$cnfSubject] != "" && $cnfPermaLink != 0)
-  {
-    $opcion = 1;
-?>
-<title><?php
-    echo $_GET[$cnfSubject] . " | " . $cnfTitle;
-?></title>
-<?php
-  }
 else if ($posVarCat !== false && $cnfPermaLink == 0)
   {
+	  
     $opcion            = 1;
     $subforumNameUrl   = "";
     $subforumNameTitle = "";
@@ -432,15 +405,15 @@ else if ($posVarCat !== false && $cnfPermaLink == 0)
     echo $cnfHome . "" . $cnfLogo;
 ?>" />
 <meta property="og:locale" content="<?php
-    echo $cnfLanguage;
+    echo $cnfLanguageFb;
 ?>" />
 <?php
-    if ($cnfFbFan != "")
+    /*if ($cnfFbFan != "")
       {
 ?><meta property="article:publisher" content="https://www.facebook.com/<?php
         echo $cnfFbFan;
 ?>" /><?php
-      }
+      }*/
 ?>
 <meta name="twitter:card" content="summary"/>
 <?php
@@ -473,6 +446,7 @@ else if ($posVarCat !== false && $cnfPermaLink == 0)
   }
 else
   {
+	  
     $opcion = 2;
     if ($cnfPermaLink == 0)
       {
@@ -481,59 +455,47 @@ else
             $w = substr($w, 0, strpos($w, "/"));
         if (substr($w, -1) == "/")
             $w = substr($w, 0, -1);
-      }
-    else if ($cnfPermaLink == 1)
-      {
-        $w = substr($_SERVER['REQUEST_URI'], $posVar + 1);
-      }
-    else
-      {
-        $w = $_GET['m'];
-      }
+	  }
+  
     $w         = urldecode($w);
     $w         = filter_var($w, FILTER_SANITIZE_SPECIAL_CHARS);
     $titleFile = str_replace("-", " ", $w);
+
+	$thumbnail=thumbnail($w,$cnfHome,$cnfLogo,$cnfThumbnail);
+		
+	
+
 ?>
 <meta name="Keywords" content="<?php
     echo str_replace(" ", ",", $titleFile);
 ?>">
-<meta name="Description" content="<?php
-    echo $titleFile;
-?>">
-<link rel="canonical" href="<?php
-    echo "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+<meta name="Description" content="<?php echo $titleFile;?>">
+<link rel="canonical" href="<?php echo "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];?>" />
+<link rel="alternate" type="application/rss+xml" title="<?php echo $forumDes; ?>" 
+href="<?php echo $cnfHome . "feed.php?s=" . $pathForumTotal . "/" . $strLink . $w . $strLinkEnd . "&t=1";
 ?>" />
-<link rel="alternate" type="application/rss+xml" title="<?php
-    echo $forumDes;
-?>" href="<?php
-    echo $cnfHome . "feed.php?s=" . $pathForumTotal . "/" . $strLink . $w . $strLinkEnd . "&t=1";
-?>" />
-<meta itemprop="name" content="<?php
-    echo $titleFile;
+<meta itemprop="name" content="<?php echo $titleFile;
 ?>"/>
-<meta itemprop="description" content="<?php
-    echo $forumName . "," . str_replace(" ", ",", $titleFile);
+<meta itemprop="description" content="<?php echo $titleFile;
 ?>"/>
 <meta property="og:type" content="website" />
-<meta property="og:title" content="<?php
-    echo $titleFile;
-?>" />
-<meta property="og:url" content="<?php
-    echo "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-?>" />
-<meta property="og:site_name" content="<?php
-    echo str_replace(" ", ",", $titleFile);
-?>" />
-<meta property="og:locale" content="<?php
-    echo $cnfLanguage;
-?>" />
+<meta property="og:title" content="<?php echo $titleFile;?>" />
+<meta property="og:url" content="<?php echo "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" />
+<meta property="og:site_name" content="<?php    echo str_replace(" ", ",", $titleFile);?>" />
 <?php
-    if ($cnfFbFan != "")
+
+?>
+<meta property="og:locale" content="<?php  echo $cnfLanguageFb; ?>" />
+<meta property="og:image" content="<?php  echo $thumbnail; ?>" />
+<meta property="og:description" content="<?php  echo $titleFile; ?>" />
+
+<?php
+    /*if ($cnfFbFan != "")
       {
 ?><meta property="article:publisher" content="https://www.facebook.com/<?php
         echo $cnfFbFan;
 ?>" /><?php
-      }
+      }*/
 ?>
 <meta name="twitter:card" content="summary"/>
 <?php
@@ -568,18 +530,20 @@ echo $cnfHome . $cnfJava;
 </head>
 <body>
 <div class="box1" >
-<a href="<?php
+<!--<a style="float:left;" href="<?php
 echo $cnfHome;
 ?>" alt="<?php
 echo $lngBackIndex;
 ?>" title="<?php
 echo $lngBackIndex;
 ?>">
-<img class="logo" title="<?php
+-->
+<img style="cursor:pointer;" onclick="javascript:location.href='<?php echo $cnfHome;?>'" class="logo" title="<?php
 echo $cnfHeaderText;
 ?>" src="<?php
 echo $cnfHome . $cnfLogo;
-?>" /></a>
+?>" />
+<!--</a>-->
 <div class="boxAlignVertical">
 <h1 class='h1Vertical'><?php
 echo $cnfHeaderText;
@@ -789,14 +753,16 @@ if ($opcion == 0)
     if ($blogMode == 0)
       {
 ?>
-<nav>
+<nav id="catNav" >
 <a href="../index.php">Inicio</a> >>
 <?php
         echo $forumName . ": <i>" . $forumDes . "</i>";
 ?>
 </nav>
+
 <?php
       }
+	 $strPaginacion="";
     $files     = array();
     $strFilesT = "";
     $xx        = 0;
@@ -860,17 +826,20 @@ if ($opcion == 0)
             $desde = $_GET['p'] + 1;
             if ($back >= 0 && $_GET['p'] != 0)
               {
-                echo "<a href='" . $cnfHome . $pathForumTotal . "/?p=" . $back . "'/><b><<</b> </a>";
+                $strPaginacion.= "<a href='" . $cnfHome . $pathForumTotal . "/?p=" . $back . "'/><b><<</b> </a>";
               }
-            echo "Mensajes del :[" . $desde . " al " . $next . "]";
+            $strPaginacion.= "Mensajes del :[" . $desde . " al " . $next . "]";
             if ($nnext > 0)
               {
-                echo "<a href='" . $cnfHome . $pathForumTotal . "/?p=" . $next . "'/><b>>></b></a>";
+                $strPaginacion.= "<a href='" . $cnfHome . $pathForumTotal . "/?p=" . $next . "'/><b>>></b></a>";
               }
             $xx  = 1;
             $alg = 0;
+echo $strPaginacion;
 ?>
+
 <div style="clear:both"></div>
+<center><a href="#w"><b>Iniciar un nuevo tema</b></a></center>
 <div class="boxBody">
 <?php
             if ($blogMode == 0)
@@ -883,11 +852,14 @@ if ($opcion == 0)
               }
 ?>
 <?php
+
             $adsx = 0;
             foreach ($files as $file)
               {
+				  
                 if ($xx > $_GET['p'] && $xx <= $next)
-                  {
+                  {					  
+					  
                     $strAuxFile0 = $file[0];
                     if ((int) $file[2] == 0)
                         $fileName = preg_replace('/\\.[^.\\s]{3,4}$/', '', $file[0]);
@@ -896,13 +868,14 @@ if ($opcion == 0)
                     $strPermalink = "";
                     if ($cnfPermaLink == 0)
                         $strPermalink = $cnfHome . $pathForumTotal . $auxBlog . "index.php/" . $fileName . "/";
-                    else if ($cnfPermaLink == 2)
-                        $strPermalink = $cnfHome . $pathForumTotal . $auxBlog . "?m=" . $fileName;
+                    /*else if ($cnfPermaLink == 2)
+                        $strPermalink = $cnfHome . $pathForumTotal . $auxBlog . "?m=" . $fileName;*/
+					
 					
 					$thumbnail=thumbnail($fileName,$cnfHome,$cnfLogo,$cnfThumbnail);
+					
                     if ((int) $file[2] == 0)
-                      {
-						
+                      {						
 				 
 				 
                         echo "<a href='" . $strPermalink . "' title='".str_replace("-", " ", $fileName)."'><div class='boxForum2in'>";						
@@ -916,6 +889,7 @@ if ($opcion == 0)
                       }
                     else
                       {
+						  
 						  echo "<a href='" . $strPermalink . "' title='".str_replace("-", " ", $fileName)."'><div class='boxForumPin'>";						
 						echo '<div class="hexagon75" style="background-image:url('.$thumbnail.');">
 						<div class="hexTop75"></div>			
@@ -930,15 +904,18 @@ if ($opcion == 0)
                       {
                         $adsx = 0;
 ?>
-<div id="ad" style="text-align:center;padding:25px;">
+<br style="clear:both">
+<center>
 <?php
-                        if ($cnfAdsTitle != "")echo "<br>".$cnfAdsTitle."<br>";
+                    if ($cnfAdsTitle != "")
+                        echo "<br><i>" . $cnfAdsTitle . "</i><br>";
+                    echo $cnfAdsense;
 ?>
+</center>
 <?php
-                        echo $cnfAdsense;
-?>
-</div>
-<?php
+
+
+
                       }
                   }
                 $xx++;
@@ -957,31 +934,14 @@ if ($opcion == 0)
           {
 ?>
 <div style="clear:both"></div>
+<?php
+echo $strPaginacion;
+?>
 <h6 style="text-align:center">Comenzar un nuevo tema</h6>
 <form class="formBlitz" method="post" action="<?php
             echo $cnfHome . "w.php?q=0&t=" . $pathForumTotal;
 ?>" enctype="multipart/form-data">
-<?php
-            if ($_SESSION['iduserx'] == $cnfAdm || $_SESSION['iduserx'] == $forumMod)
-              {
-                echo '<input type="checkbox" name="d" id="d" value="1">' . $lngBlock . '<input type="checkbox" name="f" id="f" value="1">' . $lngPin;
-                if ($_SESSION['iduserx'] == $cnfAdm)
-                  {
-					echo ' | ' . $lngIn . ' <input type="text" style="width:20px" name="ti" id="ti" value="0"> ' . $lngHours;	
-                    if ($blogMode == 0){
-                        echo '<input type="checkbox" name="po" id="po" value="1" checked>' . $lngIndex;
-					}
-						
-						if($cnfAdsense != ""){
-						echo '<input type="button" alt="ctrl+4" value="adsense" onclick="addtag(\'adsense\')" style="width:65px;margin-left:10px; font-weight:bold;" />';
-						//echo '<textarea id="adsenseCode" name="adsenseCode" style="display:none;" />'.$cnfAdsense.'</textarea>';
-					
-						}
-						
-                  }
-				 echo ' | Index Image:<input type="text" name="poimg" id="poimg" value="">'; 
-              }
-?>
+
 <input type="text" name="w" id="w" onKeyUp='feChangeW()' placeholder="Title" autocomplete="off" value="<?php
             echo $title;
 ?>">
@@ -1001,11 +961,36 @@ echo $body;
 </div>  
 <input type="text" value="<?php
             echo $tag;
-?>" name="u" id="u" placeholder="tag1,tag2" autocomplete="off" style="width:73%"><input type="button" title="" value="Link Tags" onclick="linktag()"  /><input type="button" title="" value="Link <?php echo $forumReal;?>" onclick="linkCat(<?php echo "'".$forumReal."','".$cnfHome.$strLink.$forumReal.$strLinkEnd."'";?>)"  />
+?>" name="u" id="u" placeholder="tag1,tag2" autocomplete="off" style="width:73%"><input type="button" title="" value="Link Tags"  onclick="linktag()"  /><input type="button" title="" value="Link <?php echo $forumName;?>" onclick="linkCat(<?php echo "'".$forumName."','".$cnfHome.$strLink.$forumReal.$strLinkEnd."'";?>)"  />
 <br style="clear:both">
 <input type="submit" name="submit" id="submit" value="<?php
             echo $lngCreate;
 ?>"/>
+<?php
+            if ($_SESSION['iduserx'] == $cnfAdm || $_SESSION['iduserx'] == $forumMod)
+              {
+                echo '<input type="checkbox" name="d" id="d" value="1">' . $lngBlock . '<input type="checkbox" name="f" id="f" value="1">' . $lngPin;
+                if ($_SESSION['iduserx'] == $cnfAdm)
+                  {
+					echo ' | ' . $lngIn . ' <input type="text" style="width:20px" name="ti" id="ti" value="0"> ' . $lngHours;	
+                    if ($blogMode == 0){
+                        echo '<input type="checkbox" name="po" id="po" value="1" checked>' . $lngIndex;
+					}
+						
+						if($cnfAdsense != ""){
+						echo '
+						<input type="button" alt="ctrl+4" value="adsense" onclick="addtag(\'adsense\')" style="width:65px;margin-left:10px; font-weight:bold;" />
+						<input type="button" alt="ctrl+5" value="Ads After Files" onclick="addfiles()" style="width:115px;margin-left:10px; font-weight:bold;" />
+						<input type="button" alt="ctrl+6" value="Ads After Titles" onclick="addtit()" style="width:110px;margin-left:10px; font-weight:bold;" />
+						';
+						//echo '<textarea id="adsenseCode" name="adsenseCode" style="display:none;" />'.$cnfAdsense.'</textarea>';
+					
+						}
+						
+                  }
+				 echo '<input type="hidden" name="poimg" id="poimg" value="">'; 
+              }
+?>
 <br><?php
             echo $lngPreView;
 ?>
@@ -1062,11 +1047,11 @@ else if ($opcion == 1)
 						 $thumbnail=thumbnail($file,$cnfHome,$cnfLogo,$cnfThumbnail);
 				 
                         $strEnlaces .="<a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>";						
-						$strEnlaces .='<div class="hexagon75" style="background-image:url('.$thumbnail.');">
+						$strEnlaces .='<div class="boxRelated"><div class="hexagon75" style="background-image:url('.$thumbnail.');">
 						<div class="hexTop75"></div>			
 						<div class="hexBottom75"></div>
 						</div>';						
-						$strEnlaces .="<h5 class='h5Left'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</h5>".$lngModified.":&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div></a>";
+						$strEnlaces .="<h5 class='h5Left'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</h5>".$lngModified.":&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div></div></a>";
 						
                         //$strEnlaces .= "<div class='boxTag'><h5 class='h5Left'><a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>" . str_replace("-", " ", utf8_encode(basename($file, ".xml") . PHP_EOL)) . "</a></h5>&nbsp;&nbsp;Última respuesta:&nbsp;&nbsp;<time class='entry-date' datetime='" . $fechaRss . "'>" . $fecha . "</time></div>";
                       }
@@ -1077,7 +1062,7 @@ else if ($opcion == 1)
 					 $thumbnail=thumbnail($file,$cnfHome,$cnfLogo,$cnfThumbnail);
 				 
                         $strEnlaces .="<a class='aFloatMessage' href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basename($file, ".xml") . PHP_EOL) . $strLinkEnd . "'>";						
-						$strEnlaces .='<div class="boxForum2in"><div class="hexagon75" style="background-image:url('.$thumbnail.');">
+						$strEnlaces .='<div class="boxRelated"><div class="hexagon75" style="background-image:url('.$thumbnail.');">
 						<div class="hexTop75"></div>			
 						<div class="hexBottom75"></div>
 						</div>';						
@@ -1109,7 +1094,8 @@ else if ($opcion == 1)
         echo '<h2 class="h1GrayCenter">' . $lngResultsFor . ' "' . $strCategoria . '":</h2>';
         if ($blogMode == 0)
           {
-            echo '<div class="box2">' . $strEnlaces . '</div>';
+            //echo '<div class="boxRelated">' . $strEnlaces . '</div>';
+			echo $strEnlaces ;
             //echo fCategorias($arrForums,$cnfHome);
           }
         else
@@ -1118,7 +1104,7 @@ else if ($opcion == 1)
           }
       }
   }
-else
+else//***********************POST
   {
 	$posVarTemporal = strrpos($w, "_T_");
 	if($posVarTemporal!==false&&$_SESSION['iduserx'] != $cnfAdm && $_SESSION['iduserx'] != $forumMod)die(header("refresh:0;url=".$cnfHome));
@@ -1140,7 +1126,7 @@ else
         $_SESSION['allowdelete'] = 1;
       }
 ?>
-<nav>
+<nav id="catNav" >
 <a href="<?php
     echo $cnfHome;
 ?>">HOME</a> >>
@@ -1159,7 +1145,7 @@ else
 <?php
     echo $titleFile;
 ?>
-</nav>
+<nav id="catNav">
 <?php
     $xr = 0;
     if ($cnfPermaLink == 0)
@@ -1202,6 +1188,7 @@ else
     $alg    = 0;
     $author = 0;
     $adsx   = 0;
+	$strUsersVoted="";
     foreach ($xml->p as $repuesta)
       {
         if(isset($_SESSION['iduserx']))if ($xr == 0 && $repuesta->u == $_SESSION['iduserx'])
@@ -1212,12 +1199,12 @@ else
           {
             $alg            = 1;
             $subStyle       = '';
-            $subStyle       = 'style="background-color:#FFF;"';
+            $subStyle       = 'style="background-color:#000;"';
             $boxPostPortada = 'boxPostPortadaR';
 			$headerCat="";
             if ($xr % 2 != 0)
               {
-                $subStyle = 'style="background-color:#efefef;"';
+                $subStyle = 'style="background-color:#000;"';
               }
             if ($xr != 0 && $xr == $xml->p[0]->f)
                 $subStyle = 'style="background-color:#D6FFAE;"';
@@ -1237,23 +1224,32 @@ else
 <header class="<?php echo $headerCat;?>">
 <?php
             if ($xr == 0)
-                echo "<h1 class='h2Title'>" . $repuesta->t . "</h1>\r\n";
+                echo "<h1 class='h2Title'>" . $repuesta->t . "</h1>\r\n";	
+	
+			  
             if ($xr != 0 && $xr == $xml->p[0]->f)
                 echo " <h5>✔<i>" . $lngFavorite . "</i></h5>\r\n";
 ?>
 <p class="pSubLine"><?php
-            echo "<a href='" . $cnfHome . "user.php" . $strLinkUser . $repuesta->u . $strLinkEnd . "'  title='Ver perfil de " . $repuesta->u . "'>" . $repuesta->u . "</a> ";
+            echo "<a href='" . $cnfHome . "user.php" . $strLinkUser . $repuesta->u . $strLinkEnd . "'  title='Ver perfil de " . $repuesta->u . "'>" . $repuesta->u . "</a> ";	
 ?>
 <time class="entry-date" datetime="<?php
             echo gmdate("D, d M Y H:i:s O", (int) $repuesta->a);
 ?>"><?php
             echo gmdate("<b>d-M-Y</b> G:i", (int) $repuesta->a);
 ?></time></p>
+
 </header>
+
 <br style="clear:both">
+	
 <section class="sectionPortada" id="<?php
             echo "sec" . $xr;
 ?>"><?php
+
+
+
+
             if ($xr != 0 && $repuesta->m == 0)
                 echo $repuesta->b;
             else if ($xr != 0 && $repuesta->u == $_SESSION['iduserx'])
@@ -1273,17 +1269,32 @@ else
             if ($xr != 0 && $author == 1 && $xr != $xml->p[0]->f && $_SESSION['iduserx'] != $xml->p[$xr]->u)
               {
                 echo '<form  method="post" action="' . $cnfHome . "w.php?q=7&w=" . $pathForumTotal . '/' . utf8_encode($w) . '&t=' . $xr . '&y=' . $repuesta->u . '"> 
-<input class="favButton" type="submit" id="likeButton" name="likeButton" value="Puedes elegirla como la mejor respuesta"></form>';
+				<input class="favButton" type="submit" id="likeButton" name="likeButton" value="Puedes elegirla como la mejor respuesta"></form>';
               }
             if ($cnfVoteLevel == "")
                 $cnfVoteLevel = 0;
             //echo $cnfVoteLevel;
             if ($repuesta->v != "")
               {
-                $intVotes = count(explode(",", $repuesta->v)) - 1;
+				$intVotes=0;
+                $intVotes = count(explode(",", $repuesta->v)) - 1;	
+				
+				//blitzhivemod
+				if($cnfVoteMoney!="0"&&$cnfVoteMoney!=""){
+					$intVotesMoney=0;					
+					$intVotesMoney=$intVotes*$cnfVoteMoney;
+				
+				$strMoney="";				
+				if($xr==0)$strMoney="<br><h3><b><a target='_blank' href='" . $cnfHome . "user.php" . $strLinkUser . $repuesta->u . $strLinkEnd . "'  title='Ver ganancias de " . $repuesta->u . "'>" . $repuesta->u . "</a></b> ha ganado <b><a href='http://blitzhive.com/dinero-por-contenido.php' target='_blank' title='ganar dinero por contenido'>".$intVotesMoney." $</a></b> con este post</h3></div>";
+				else $strMoney="<br><h3><b><a target='_blank' href='" . $cnfHome . "user.php" . $strLinkUser . $repuesta->u . $strLinkEnd . "'  title='Ver ganancias de " . $repuesta->u . "'>" . $repuesta->u . "</a></b> ha ganado <b><a href='http://blitzhive.com/dinero-por-contenido.php' target='_blank' title='ganar dinero por contenido'>".$intVotesMoney." $</a></b> con esta respuesta</h3></div>";
+				}
+				
                 if ($repuesta->v != "")
-                    $strUsersVoted .= "(" . substr($repuesta->v, 1) . ")";
-                echo "<span id='lbVotes'>" . $lngLikeTo . ":</span><div id='votes'><b>" . $intVotes . "</b>" . $strUsersVoted . "</div>";
+                    $strUsersVoted = "(" . substr($repuesta->v, 1) . ")";
+                echo "<span id='lbVotes'>" . $lngLikeTo . ":</span><div id='votes'><b>" . $intVotes 
+					. "</b>" . $strUsersVoted .$strMoney."</div>";
+					
+				
               }
             else if (isset($_SESSION['iduserx']))
               {
@@ -1293,8 +1304,11 @@ else
                   }
               }
             $strButtonVote = "";
-            if (isset($_SESSION['iduserx']) && $_SESSION['iduserx'] != $repuesta->u && strpos($repuesta->v, ',' . $_SESSION['iduserx'], 0) === false && intval($_SESSION['level']) >= intval($cnfVoteLevel))
-              {
+            if (isset($_SESSION['iduserx']) && $_SESSION['iduserx'] != $repuesta->u 
+			&& strpos($repuesta->v, ',' . $_SESSION['iduserx'], 0) === false 
+			&& $repuesta->v!=$_SESSION['iduserx']
+			&& intval($_SESSION['level']) >= intval($cnfVoteLevel))
+              {				  
 ?>
 <form method="post" action="<?php
                 echo $cnfHome . "w.php?q=3&w=" . $pathForumTotal . '/' . utf8_encode($w);
@@ -1304,17 +1318,19 @@ else
                 echo $repuesta->u;
 ?> ">
 <?php
-                $strButtonVote = '  <input class="likeButton" type="submit" id="likeButton" name="likeButton" value="+"></form>';
+                //$strButtonVote = '  <input class="likeButton" type="submit" id="likeButton" name="likeButton" value="+"></form>';
+				//blitzhivemod
+				if($cnfVoteMoney!="0"&&$cnfVoteMoney!="")$strButtonVote = '  <input class="likeButton" type="submit" id="likeButton" name="likeButton" title="Donar '.$cnfVoteMoney.'$ gratis " value="Donar '.$cnfVoteMoney.'$ gratis"></form>';
               }
-            else
+            else if($_SESSION['iduserx'] != $repuesta->u )
               {
                 if (isset($_SESSION['level']))
                     if (intval($_SESSION['level']) < intval($cnfVoteLevel))
-                        $strButtonVote = '<span  id="lbVotes"><i>' . $lngAllowLevel . ' <a href="' . $cnfHome . 'swarm.php" title="' . $lngMoreInfoLevel . '">(' . $_SESSION['level'] . '>=' . $cnfVoteLevel . ')</a> ' . $lngToVote . '</i></span><br style="clear:both;">';
+                        $strButtonVote = '<span  id="lbVotes"><i>' . $lngAllowLevel . ' (' . $_SESSION['level'] . '<' . $cnfVoteLevel . ') ' . $lngToVote . '</i></span><br style="clear:both;">';
                     else
                         echo '<br style="clear:both;">';
               }
-            echo $strButtonVote;
+            echo $strButtonVote."<br>";
             if ($xr == 0 && ($cnfFacebook == "checked" || $cnfTwitter == "checked" || $cnfGooglePlus == "checked" || $cnfPinterest == "checked" || $cnfLinkedin == "checked"))
               {
                 if ($cnfHashtags != "checked")
@@ -1323,6 +1339,7 @@ else
                     $datahashtags = "";
                   }
 ?>
+<br style="clear:both">
 <span id="lbVotes"><?php
                 echo $lngShareIs;
 ?> :)</span>
@@ -1333,46 +1350,96 @@ else
                 if ($cnfFacebook == "checked")
                   {
 ?>
-<div class="fb-like" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true" data-href="<?php
+<?php
+echo "<a href='https://www.facebook.com/sharer/sharer.php?u=".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].$sxr."' title='Share in Facebook' target='_blank' ><img  title='Share in Facebook' src='".$cnfHome."hexagon-facebook.png' /></a>";
+?>
+<!--<div class="fb-like" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true" data-href="<?php
                     echo "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" . $sxr;
-?>"></div>
+?>"></div>-->
 <?php
                   }
                 if ($cnfTwitter == "checked")
                   {
 ?>
+<?php
+echo "<a href='https://twitter.com/intent/tweet?text=".urlencode($repuesta->t)." ".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] . $sxr."&via=".$cnfTwFollow."'
+target='_blank' title='Share in Twitter'>
+<img src='".$cnfHome."hexagon-twitter.png' title='Share in Twitter' />
+</a>";
+?>
+<!--
 <span> </span><a href="https://twitter.com/share" class="twitter-share-button" data-url="<?php
                     echo "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" . $sxr;
 ?>" data-via="<?php
                     echo $cnfTwFollow;
 ?>" <?php
                     echo 'data-hashtags="' . $datahashtags . '"';
-?>>Tweet</a>
+?>>Tweet</a>-->
 <?php
                   }
                 if ($cnfGooglePlus == "checked")
                   {
 ?>
-<div class="g-plusone" data-href="<?php
+<!--<div class="g-plusone" data-href="<?php
                     echo "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" . $sxr;
-?>" data-annotation="inline" data-width="120"></div>
+?>" data-annotation="inline" data-width="120"></div>-->
+
+<?php
+echo "<a href='https://plus.google.com/share?url=".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] . $sxr."'
+target='_blank' title='Share in Google Plus'>
+<img src='".$cnfHome."hexagon-googleplus.png' title='Share in Google Plus' />
+</a>";
+?>
+
 <?php
                   }
                 if ($cnfPinterest == "checked")
                   {
+					  
+echo "<a href='https://pinterest.com/pin/create/button/?url=".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] . $sxr."&media=&description='
+target='_blank' title='Share in Pinterest'>
+<img src='".$cnfHome."hexagon-pinterest.png' title='Share in Pinterest' />
+</a>";					  
 ?>
-<a href="//es.pinterest.com/pin/create/button/?url=<?php
+<!--<a href="//es.pinterest.com/pin/create/button/?url=<?php
                     echo "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" . $sxr;
 ?>&media=http%3A%2F%2Ffarm8.staticflickr.com%2F7027%2F6851755809_df5b2051c9_z.jpg&description=Next%20stop%3A%20Pinterest" data-pin-do="buttonPin" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a>
+-->
+
 <?php
                   }
                 if ($cnfLinkedin == "checked")
                   {
+echo "<a href='https://www.linkedin.com/shareArticle?mini=true&url=".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] . $sxr."&title=&summary=&source='
+target='_blank' title='Share in linkedin'>
+<img src='".$cnfHome."hexagon-linkedin.png' title='Share in linkedin' />
+</a>";						  
+					  
+					  
 ?>
-<script type="IN/Share" data-url="http://google.com" data-counter="right"></script>
+<!--<script type="IN/Share" data-url="http://google.com" data-counter="right"></script>
+-->
 <?php
                   }
 ?>
+<?php
+
+				//$cnfWhatsapp="checked";
+                if ($cnfWhatsapp == "checked")
+                  {
+					  echo "<a href='whatsapp://send?text= ".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] . $sxr."'
+target='_blank' title='Share in Whatsapp'>
+<img src='".$cnfHome."hexagon-whatsapp.png' title='Share in Whatsapp' />
+</a>";		
+?>
+
+<!--<a href="whatsapp://send?text= <?php echo "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" . $sxr;
+?>" data-action="share/whatsapp/share"><img border="0" src="<?php echo $cnfHome;?>whatsapp.png" width="32px" height="32px"></a>-->
+<?php
+                  }
+?>
+
+
 <?php
               }
 ?>
@@ -1578,7 +1645,7 @@ href='" . $cnfHome . $pathForumTotal . $auxBlog . $strLink . utf8_encode(basenam
                 echo $_SESSION['answer'];
 ?></textarea>-->
 <textarea name="hide" id="hide" style="display:none;"></textarea>
-<div spellcheck="true"  contentEditable="true" id="txtE" name="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' >
+<div spellcheck="true"  contentEditable="true" id="txtE" name="txtE" onKeyUp='feChange(event)' onKeyDown='keyDownTextarea(event)' onMouseUp='feSel()' >
 <?php
 if (isset($_SESSION['answer']))echo $_SESSION['answer'];
 ?>
@@ -1599,6 +1666,30 @@ if (isset($_SESSION['answer']))echo $_SESSION['answer'];
           }
       }
 ?>
+
+<?php
+//$cnfFbComments="5";
+if($cnfFbComments != ""&&$cnfFbComments != "0"){
+	?>
+	<br style="clear:both">
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v2.5";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+	
+<?php
+//echo '<b>Comentar usando Facebook</b><br>';
+echo '<div class="fb-comments" data-colorscheme="light" data-href="'.$cnfHome.$_SERVER['REQUEST_URI'].'" data-numposts="'.$cnfFbComments.'"  ></div>';
+
+}
+?>
+<!--<a class="twitter-timeline" data-dnt="true" href="https://twitter.com/hashtag/swarmintelligence" data-widget-id="115213123123">Tweets sobre #swarmintelligence</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>-->
+
 <p><time pubdate datetime="<?php
     echo gmdate("D, d M Y H:i:s O", (int) $xml->p[$xr - 1]->a);
 ?>"></time></p>
@@ -1615,7 +1706,7 @@ if ($cnfGoogleSearch != "" && $cnfXGoogle == "")
 <?php
   }
 ?>
-<?php
+<!--<?php
 if ($cnfFacebook == "checked")
   {
 ?>
@@ -1647,6 +1738,27 @@ if ($cnfLinkedin == "checked")
 <script src="//platform.linkedin.com/in.js" type="text/javascript">lang:en_US;</script>
 <?php
   }
+?>-->
+
+<?php
+
+if($forumTl!=""&&$forumTl!="0")
+ {
+	 //echo "-->".$forumTl;
+$twLine = explode("_", $forumTl);
+$posTlHashTag  = strrpos($twLine[0], "#");
+$posTlSearch  = strrpos($twLine[0], "search?q");
+$posTlLikes  = strrpos($twLine[0], "/likes");
+//$posTlUser  = strrpos($twLine, "search?q");
+if($posTlSearch!==false) echo '<center><a class="twitter-timeline" href="https://twitter.com/search?q='.$twLine[0].'" data-widget-id="'.$twLine[1].'">Tweets sobre '.$twLine[0].'</a></center>';
+else if($posTlHashTag!==false) echo '<center><a class="twitter-timeline" href="https://twitter.com/hashtag/'.$twLine[0].'" data-widget-id="'.$twLine[1].'">Tweets sobre #'.$twLine[0].'</a></center>';
+else if($posTlLikes!==false) echo '<center><a class="twitter-timeline" href="https://twitter.com/'.$twLine[0].'/likes" data-widget-id="'.$twLine[1].'">Tweets sobre #'.$twLine[0].'</a></center>';
+else echo '<center><a class="twitter-timeline" href="https://twitter.com/'.$twLine[0].'" data-widget-id="'.$twLine[1].'">Tweets de @'.$twLine[0].'</a></center>';
+?>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+<?php
+}
+
 ?>
 <footer>
 <?php

@@ -31,6 +31,6 @@ Installation of CMS Blitzhive
 
 6# If you want use it with out categories, just rename cat.php -> index.php
 
-English forum: http://blitzhive.com/English/
+English forum: http://blitzhive.net
 Report bugs  :http://blitzhive.com/Bugs/
 Add improvements: http://blitzhive.com/Mejoras/

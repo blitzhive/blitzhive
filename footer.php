@@ -18,7 +18,12 @@ if($cnfAdvCookie!=""&&!isset($_SESSION['iduserx'])&&!isset($_SESSION['cookieAdv'
 	echo '<a href="#" onclick="fCookieAdv(\''.addcslashes($_SERVER['REQUEST_URI'],"'").'\',\''.$cnfHome.'\')">'.$cnfAdvCookie.'</a>';	
 }
 if($cnfTrack!=""){	
+	if(isset($tr)){
 	if($tr==0)include('track.php');
 	else include('../track.php');
+	}else {		
+	include('track.php');	
+	}
 }
+
 ?>

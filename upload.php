@@ -17,7 +17,7 @@ if (isset($_POST['submitFile']))
               {
                 if ($_FILES["file"]["error"][$key] > 0)
                   {
-                    echo $_FILES["file"]["name"][0]."Error código: " . $_FILES["file"]["error"][$key] . "<br>";
+                    echo $_FILES["file"]["name"][0]." Error código: " . $_FILES["file"]["error"][$key] . "<br>";
                   }
                 else
                   {
@@ -47,24 +47,76 @@ if (isset($_POST['submitFile']))
 					else if($posVarImage!==false&&$cnfUploadsImage!="")$cnfUploadFolder=$cnfUploadsImage;
 					
 					
-                    while (file_exists($cnfUploadFolder . "/" . $_FILES["file"]["name"][$key]))
+					if (isset($_POST['chGallery']) && $_POST['chGallery'] == "checked")
+					if (isset($_POST['galleryName']))if($_POST['galleryName']!=""){						
+						$_POST['galleryName'] = preg_replace("/[?¿!¡|*\\/:]/", "", $_POST['galleryName']);
+						$_POST['galleryName'] = utf8_decode($_POST['galleryName']);
+						$_POST['galleryName'] = strtr($_POST['galleryName'], utf8_decode($originales), $modificadas);
+						$_FILES["file"]["name"][$key]=$_POST['galleryName'].".".$extUp;
+						//echo $_POST['galleryName'].".".$extUp;
+					}
+					//die("1");
+					$BaseName= basename($_FILES["file"]["name"][$key],".".$extUp);
+					//$xc=0;
+					//echo $BaseName.$extUp;
+                    while (file_exists($cnfUploadFolder . "/" . $BaseName.".".$extUp))
                       {
-                        $_FILES["file"]["name"][$key] = $xc . "-" . $_FILES["file"]["name"][$key];
+                        ///$_FILES["file"]["name"][$key] = $xc . "-" . $_FILES["file"]["name"][$key];
+						if($xc==0)$BaseName = $BaseName."-".$xc;
+						else $BaseName = substr($BaseName, 0,strrpos($BaseName, "-"))."-".$xc;
+						
                         $xc++;
                       }
-                    if (move_uploaded_file($_FILES["file"]["tmp_name"][$key], $cnfUploadFolder . "/" . $_FILES["file"]["name"][$key]))
+					  $BaseName=$BaseName.".".$extUp;
+					  //die("-->".$BaseName.".".$extUp."<--");
+                    if (move_uploaded_file($_FILES["file"]["tmp_name"][$key], $cnfUploadFolder . "/" . $BaseName))
                       {
                         //$_FILES["file"]["name"][$key] = $_FILES["file"]["name"][$key];
                         //echo "Archivo subido :) " . $_FILES["file"]["name"][$key] . "<br>";
                 
-				if(!isset($_SESSION['uploadedText']))$_SESSION['uploadedText']="<span style='color:#8CD63C;float:left;margin:5px;'> ";
-				else $_SESSION['uploadedText'].="<span style='color:#8CD63C;float:left;margin:5px;'> ";
+				if(!isset($_SESSION['uploadedText']))$_SESSION['uploadedText']="<span style='color:#8CD63C;float:left;margin:1px;font-size:5em'> ";
+				else $_SESSION['uploadedText'].="<span style='color:#8CD63C;float:left;margin:1px;font-size:5em'> ";
 				
-				if($posVarVid===false&&$posVarFile===false)$_SESSION['uploadedText'] .= '<img title="Insert in text!" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '\',1)" src="' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '" class="imgUpload"/>';/*Use <b><input type="button" value="[pic]" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '\',1)"/></b> ';*/
-				else if($posVarFile===false)$_SESSION['uploadedText'] .= '<video title="Insert in text!" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '\',2)" class="vidUpload" src="' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '" controls>Not supported</video>';/* Click <b><input type="button" value="[vid]" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '\',2)"/></b> ';*/
-				else $_SESSION['uploadedText'] .= '<a title="Insert in text!" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '\',3)"><b><u>'.$_FILES["file"]["name"][$key].'</u></b></a>(↓)';/* Use <b><input type="button" value="[file]" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $_FILES["file"]["name"][$key] . '\',3)"/></b> ';*/
+				//$_SESSION['onclickMultiple']="";
+				if($posVarVid===false&&$posVarFile===false)$_SESSION['onclickMultiple'].= 'parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',1);';
+				else if($posVarFile===false)$_SESSION['onclickMultiple'].= 'parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',2);';
+				else $_SESSION['onclickMultiple'].=  'parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',3);';
+				
+				if($posVarVid===false&&$posVarFile===false)$_SESSION['uploadedText'] .= '<a title="Delete '.$BaseName.'" class="deleteA" onclick="parent.delUpload(\''.$cnfUploadFolder.'/'.$BaseName.'\')">X</a><img title="Insert in text!" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',1)" src="' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '" class="imgUpload"/>';/*Use <b><input type="button" value="[pic]" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',1)"/></b> ';*/
+				else if($posVarFile===false)$_SESSION['uploadedText'] .= '<video title="Insert in text!" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',2)" class="vidUpload" src="' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '" controls>Not supported</video>';/* Click <b><input type="button" value="[vid]" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',2)"/></b> ';*/
+				else $_SESSION['uploadedText'] .= '<a title="Insert in text!" style="font-size:0.4em;float:left;" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',3)"><b><u style="font-size:0.4em;float:left;">'.$BaseName.'</u></b>(↓)</a>';/* Use <b><input type="button" value="[file]" onclick="parent.addtag(\'' . $cnfHome . $cnfUploadFolder .'/' . $BaseName . '\',3)"/></b> ';*/
 				
 				$_SESSION['uploadedText'].="</span>";	  
+				
+				if($posVarVid===false&&$posVarFile===false)
+					$_SESSION['select'].='<option value="'. $cnfHome . $cnfUploadFolder .'/' . $BaseName .'">'.$BaseName.'</option>';
+				
+				
+			/*	if($cnfThumbnail!=""){
+				$posVarJpg  = strpos("jpg,jpeg", $extUp.",");
+				$posVarPng  = strpos("png", $extUp.",");
+				$posVarGif  = strpos("gif", $extUp.",");
+				$posVarBmp  = strpos("bmp", $extUp.",");
+				
+				list($ancho, $alto) = getimagesize($cnfUploadFolder . "/" . $_FILES["file"]["name"][$key]);				
+				$thumb = imagecreatetruecolor(50,50);
+				
+				if($posVarJpg!==false)$origen = imagecreatefromjpeg($cnfUploadFolder . "/" . $_FILES["file"]["name"][$key]);
+				else if($posVarPng!==false)$origen = imagecreatefrompng($cnfUploadFolder . "/" . $_FILES["file"]["name"][$key]);
+				else if($posVarGif!==false)$origen = imagecreatefromgif($cnfUploadFolder . "/" . $_FILES["file"]["name"][$key]);
+				else if($posVarBmp!==false)$origen = imagecreatefromwbmp($cnfUploadFolder . "/" . $_FILES["file"]["name"][$key]);
+				
+				imagecopyresized($thumb, $origen, 0, 0, 0, 0, 50, 50, $ancho, $alto);
+				
+				
+				if($posVarJpg!==false)imagejpeg($cnfThumbnail . "/" .$thumb);
+				else if($posVarPng!==false)imagepng($cnfThumbnail . "/" .$thumb);
+				else if($posVarGif!==false)imagegif($cnfThumbnail . "/" . $thumb);
+				else if($posVarBmp!==false)imagewbmp($cnfThumbnail . "/" .$thumb);
+				}*/
+				 //imagejpeg(), imagepng(), or imagegif(), 
+				
+				
 					  }
                     $xv++;
                   }
@@ -72,8 +124,8 @@ if (isset($_POST['submitFile']))
             else
               {
 				  
-                $strFail.= "<br><span style='color:#E87474;float:left;margin:5px;'>Archivo invalido <b>" . $_FILES["file"]["name"][$key]."</b> ";
-                if ($_FILES["file"]["size"][$key] >= $maxSize)
+                $strFail.= "<br><span style='color:#E87474;float:left;margin:5px;'>Archivo invalido <b>" . $BaseName."</b> ";
+                if ($BaseName >= $maxSize)
                   {
                 $strFail .= $lngMaxSize . ": " . $maxSize;
                   }	
@@ -88,31 +140,32 @@ if (isset($_POST['submitFile']))
   }
   
 ?>
-<style type="text/css">
-body{font-family:"Segoe UI",Tahoma,Helvetica,freesans,sans-serif;font-size:90%;margin:5px;color:#333;background-color:#fff}h1,h2{font-size:1.5em;font-weight:400}h2{font-size:1.3em}legend{font-weight:700;color:#333}#filedrag{display:none;font-weight:700;text-align:center;padding:1em 0;margin:1em 0;color:#555;border:2px dashed #555;border-radius:7px;cursor:default;width:100%}#filedrag.hover{color:red;border-color:red;border-style:solid;box-shadow:inset 0 3px 4px #888}img{max-width:100%}pre{width:95%;height:8em;font-family:monospace;font-size:.9em;padding:1px 2px;margin:0 0 1em auto;border:1px inset #666;background-color:#eee;overflow:auto}#messages{width:98%;margin-top:15px;height:100px;padding:0 10px;font-size:.9em;float:left;overflow-y:scroll}#progress p{display:block;width:240px;padding:2px 5px;margin:2px 0;border:1px inset #446;border-radius:5px;background:#eee url(progress.png) 100% 0 repeat-y}#progress p.success{background:#0c0 none 0 0 no-repeat}#progress p.failed{background:#c00 none 0 0 no-repeat}fieldset{float:left;width:40%}#submitFile{float:left;height:25px;margin-top:5px;margin-left:10px;font-size:150%}
-
-
-
-
-</style>
+<!--<style type="text/css">
+body{font-family:"Segoe UI",Tahoma,Helvetica,freesans,sans-serif;font-size:90%;margin:5px;color:#333;background-color:#fff}h1,h2{font-size:1.5em;font-weight:400}h2{font-size:1.3em}legend{font-weight:700;color:#333}#filedrag{display:none;font-weight:700;text-align:center;padding:1em 0;margin:1em 0;color:#555;border:2px dashed #555;border-radius:7px;cursor:default;width:100%}#filedrag.hover{color:red;border-color:red;border-style:solid;box-shadow:inset 0 3px 4px #888}img{max-width:100%}pre{width:95%;height:8em;font-family:monospace;font-size:.9em;padding:1px 2px;margin:0 0 1em auto;border:1px inset #666;background-color:#eee;overflow:auto}
+#messages{float:left;width:98%;margin-top:15px;height:100px;padding:0 10px;font-size:.9em;float:left;overflow-y:scroll}#progress p{display:block;width:240px;padding:2px 5px;margin:2px 0;border:1px inset #446;border-radius:5px;background:#eee url(progress.png) 100% 0 repeat-y}#progress p.success{background:#0c0 none 0 0 no-repeat}#progress p.failed{background:#c00 none 0 0 no-repeat}fieldset{float:left;width:40%}#submitFile{float:left;height:25px;margin-top:5px;margin-left:10px;font-size:150%}
+</style>-->
 </head>
 <body>
-<form id="upload" action="upload.php" method="POST" enctype="multipart/form-data">
-<fieldset>
-	
+<form id="upload"  action="upload.php" method="POST" enctype="multipart/form-data">
+<fieldset>	
 	<input type="file" id="fileselect" name="file[]" multiple="multiple" />
 	<!--<div id="filedrag">or drop files here</div>-->
+</fieldset>
 <div id="submitbutton">
 	<button type="submit">Upload Files</button>
 </div>
-</fieldset>
-<input type="submit" name="submitFile"  id="submitFile" value="Subir ↑">
+<input style="float:left;" type="checkbox" name="chGallery" value="checked"><i style="float:left;">Change images name to:</i>
+<input class="littleText" name="galleryName" id="galleryName" type="text" value="" ><i style="float:left;">-X</i>
+<input type="submit"  name="submitFile"  id="submitFile" value="Subir ↑">
 </form>
 <div id="messages">
-<h3>Click to use!</h3>
+
 <?php 
+if(isset($_SESSION['select']))echo ' Select a Thumbnail Image: <select onchange="parent.addIndex(this.options[this.selectedIndex].value)" name="poimg" id="poimg">'.$_SESSION['select'].'</select><br>';
+if(isset($_SESSION['onclickMultiple']))echo "<b style='float:left;'>Click to use: </b><a onclick=\"".$_SESSION['onclickMultiple']."\">Post All.</a>";
 	if(isset($_SESSION['uploadedText']))echo $strFail.$_SESSION['uploadedText'];
 	else echo $strFail;
+
 ?>
 </div>
 <script LANGUAGE="JavaScript">

@@ -4,7 +4,7 @@ if (!isset($_SESSION)) { session_start(); }
 include('config.php');
 include('header.php');
 $blogMode = 1;
-$cnfBlogFolder=$cnfBlogFolder."/";
+if($cnfBlogFolder!="")$cnfBlogFolder=$cnfBlogFolder."/";
 if(is_file("cat.php"))
   {	  
     $blogMode = 0;
@@ -127,14 +127,36 @@ if ($q == 0 || $q == 2)
 	}	
 	$fileName.=$strSubName;
 		/**thumbnail**/  
-		
-		if($poimg!=""&&$poimg!=0&&$poimg!="0")
+		$newPoImg="";
+		$newPoImg = str_replace($cnfHome, "", $poimg);
+		//die($newPoImg."---".$cnfThumbnail."/".$fileName);
+		//if($poimg!=""&&$poimg!=0&&$poimg!="0")
+		if($newPoImg!="")
 		{
 		if(!is_dir($cnfThumbnail))mkdir($cnfThumbnail, 0777, true);
-		$cnfThumbnail="thumbnail";
+		//die($poimg.",".$cnfThumbnail."/".$fileName);
+		$newPoImg = str_replace($cnfHome, "", $poimg);
+		//$newPoImg=$poimg,$cnfHome""
+		//die($newPoImg."--->".$cnfThumbnail."/".$fileName);
+		
+			$extUp = strtolower(pathinfo($newPoImg, PATHINFO_EXTENSION));
+		
+			$posVarImageJpg  = strpos("jpg,jpeg,", $extUp.",");
+			$posVarImagePng  = strpos("gif", $extUp);
+			$posVarImageGif  = strpos("png", $extUp);
+			$posVarImageBmp  = strpos("bmp,", $extUp);
+		
+		
+			if($posVarImageJpg!==false)copy($newPoImg, $cnfThumbnail."/".$fileName.".jpg");
+			else if($posVarImagePng!==false)copy($newPoImg, $cnfThumbnail."/".$fileName.".png");
+			else if($posVarImageGif!==false)copy($newPoImg, $cnfThumbnail."/".$fileName.".gif");
+			else if($posVarImageBmp!==false)copy($newPoImg, $cnfThumbnail."/".$fileName.".bmp");
+		
+		//die("1");
+		//$cnfThumbnail="thumbnail";
 		// Get new sizes
 		//die($poimg);
-		list($widthSource, $heightSource) = getimagesize($poimg);				
+		/*list($widthSource, $heightSource) = getimagesize($poimg);				
 		$thumb = imagecreatetruecolor(150, 150);
 		
 			$extUp = strtolower(pathinfo($poimg, PATHINFO_EXTENSION));
@@ -151,7 +173,7 @@ if ($q == 0 || $q == 2)
 		
 		
 		
-		//imagecopyresized($thumb, $source, 0, 0, 0, 0, 100, 100, $widthSource, $heightSource);
+		
 		imagecopyresampled($thumb, $source, 0, 0, 0, 0, 150, 150, $widthSource, $heightSource);
 		
 		
@@ -161,10 +183,10 @@ if ($q == 0 || $q == 2)
 		else if($posVarImageGif!==false)imagegif($thumb, $cnfThumbnail."/".$fileName.".gif");
 		else if($posVarImageBmp!==false)imagewbmp($thumb, $cnfThumbnail."/".$fileName.".bmp");
 		
-		//imagejpeg
+		
 		
 		imagedestroy($source);
-		imagedestroy($thumb);
+		imagedestroy($thumb);*/
 		}else
 		{
 			$poimg="0";		  
@@ -208,7 +230,8 @@ if ($q == 0 || $q == 2)
 		
 	
     $e    = strip_tags($e, '<br><b><i><u><strike><s><a><img><iframe><div><code><pre><h1><h2><h3><video>');
-	if($cnfAdsense!="" && $_SESSION['iduserx'] == $cnfAdm)$e = preg_replace("/<h1>\*\*Adsense Block\*\*<\/h1>/", $cnfAdsense, $e);
+	if($cnfAdsense!="" && $_SESSION['iduserx'] == $cnfAdm)$e = preg_replace("/<img src=\"http:\/\/blitzhive.com\/ad336x280.png\">/", $cnfAdsense, $e);
+	$e = preg_replace("/<img src=/","<img src='".$cnfHome."empty-image.png' data-src=", $e);
 
     $posA = strpos($e, "<iframe ", 0);
     while ($posA !== false)
@@ -221,11 +244,12 @@ if ($q == 0 || $q == 2)
             $posC       = strpos($e, '"', $posB);
             $len        = $posC - $posB;
             $urlYoutube = substr($e, $posB + strlen("youtube.com/embed/"), $len - strlen("youtube.com/embed/"));
-            $strYoutube = '<iframe width="480" height="360" src="//www.youtube.com/embed/' . $urlYoutube . '" frameborder="0" allowfullscreen></iframe>';
+            $strYoutube = '<iframe src="//www.youtube.com/embed/' . $urlYoutube . '" frameborder="0" allowfullscreen class="yVideo">';
             $longIframe = $posEnd - $posA;
             $e          = substr_replace($e, $strYoutube, $posA, $longIframe);
           }
-        else if ($posBB !== FALSE)
+        else
+			if ($posBB !== FALSE)
           {
             $posC       = strpos($e, '"', $posBB);
             $len        = $posC - $posBB;
@@ -346,12 +370,12 @@ if ($q == 0 || $q == 2)
                 $intPost   = substr($contenido, $posC + 1, $lenDC - 1);
                 $intPost   = $intPost + 1;
                 $contenido = substr_replace($contenido, $intPost, $posC + 1, $lenDC - 1);
-                if (str_word_count($e, 0) > 199)
+               /* if (str_word_count($e, 0) > 199)
                   {
                     $intVotes = substr($contenido, $posB + 1, $len - 1);
                     $intVotes += 1;
                     $contenido = substr_replace($contenido, $intVotes, $posB + 1, $len - 1);
-                  }
+                  }*/
                 file_put_contents($cnfUsers . "/" . strtolower($user[0]) . ".php", $contenido);
               }
             else
@@ -359,13 +383,14 @@ if ($q == 0 || $q == 2)
                 die("<h1>" . $lngUserNot . " :(</h1>");
               }
           }
+		  
         if ($t != "")
           {
             //die($t."/".$fileName.".xml");
             $xml->save($t . "/" . $fileName . ".xml");
           }
         else
-          {
+          {			  
             $xml->save($cnfBlogFolder.$fileName . ".xml");
           }
         if ($f != "0")
@@ -473,7 +498,8 @@ if ($q == 0 || $q == 2)
 		unset($_SESSION['body']);
 		unset($_SESSION['title']);
 		unset($_SESSION['tag']);
-		unset($_SESSION['uploadedText']);
+		unset($_SESSION['uploadedText']);		
+		unset($_SESSION['onclickMultiple']);
         if (str_word_count($e, 0) > 199)
           {
             header("refresh:2;url=" . $cnfHome . utf8_decode($_GET['t']) . "/" . $strLink . html_entity_decode(fReconvert($fileName),0) . $strLinkEnd);
@@ -541,24 +567,32 @@ else if ($q == 3)
         die($lngTheMes . " " . $w . " " . $lngNotExist);
     $xml = simplexml_load_file($w . ".xml");
     $t   = intval($t);
-    if (strpos($xml->p[$t]->v, "," . $user, 0) === false && intval($_SESSION['level']) >= intval($cnfVoteLevel))
+    
+	if (strpos($xml->p[$t]->v, "," . $user, 0) === false && intval($_SESSION['level']) >= intval($cnfVoteLevel))
       {
         $xml->p[$t]->v = $xml->p[$t]->v . "," . $user;
         $xml->asXML($w . '.xml');
+		
         if (file_exists($cnfUsers . "/" . $y[0] . ".php"))
-          {
+          {			  
             ini_set('memory_limit', '-1');
             $contenido = file_get_contents($cnfUsers . "/" . $y[0] . ".php");
-            $posA      = strpos($contenido, $y . "=", 0);
+            $posA      = strpos($contenido, $y . "=", 0);			
+			
             if ($posA !== false)
               {
-                $posB     = strpos($contenido, "=", $posA);
+				  
+                $posB     = strpos($contenido, "=", $posA);				
                 $posC     = strpos($contenido, ",", $posB);
+				
                 $len      = $posC - $posB;
                 $intVotes = substr($contenido, $posB + 1, $len - 1);
                 $intVotes += 1;
+				//die($intVotes."--");
                 $contenido = substr_replace($contenido, $intVotes, $posB + 1, $len - 1);
+				///die($contenido."<--");
                 file_put_contents($cnfUsers . "/" . $y[0] . ".php", $contenido);
+				
               }
             else
               {
@@ -640,14 +674,18 @@ else if ($q == 5)
         die($lngProb);
     $xml           = simplexml_load_file($w . ".xml");
     $t             = intval($t);
+	//die($e);
     $xml->p[$t]->b = $e; //body
     //$xml->p[$t]->t = $w;
     $xml->p[$t]->g = $u;
+	//die("-->".$t);
     if ($t == 0)
       {
         $xml->p[$t]->l = $d;
         $xml->p[$t]->i = $f;
+		
       }
+	  
     if ($po != "0") //EDITION
       {
         $xml2           = new DOMDocument();
@@ -802,7 +840,10 @@ else if ($q == 6 && ($_SESSION['iduserx'] == $cnfAdm || $_SESSION['mod'] == $sec
     echo $lngFileSameName . " " . $rna . " " . $lngAtEnd . "<br>";
     die($lngMoved2 . " " . $w . " " . $lngRed . " " . $_POST['selMove'] . substr($w, $posA));
   }
-else if ($q == 7 && $y != $_SESSION['iduserx'])
+else if ($q == 7 && $y != $_SESSION['iduserx']
+&&
+($cnfVoteMoney!="0"&&$cnfVoteMoney!="")
+)
   {
     $w = utf8_decode($w);
     if (!file_exists($w . ".xml"))

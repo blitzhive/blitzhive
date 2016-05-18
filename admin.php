@@ -118,6 +118,7 @@ if (isset($_POST['submitFileCss']) || isset($_POST['submitFileLogo']) || isset($
   }
 else if (isset($_POST['nameForum']) && $_POST['nameForum'] != "")
   {
+	  
     if (!isset($_POST['posForum']) || $_POST['posForum'] == "")
         $_POST['posForum'] = "0";
     $foroLimpio = fCleanChar($_POST['nameForum'], 0);
@@ -133,11 +134,12 @@ else if (isset($_POST['nameForum']) && $_POST['nameForum'] != "")
           }
         else
           {
+			
             echo 'Foro ' . $_POST['nameForum'] ." ". $lngCreated;
             $modSec = "0";
             if (isset($_POST['modForum']) && $_POST['modForum'] != "")
                 $modSec = $_POST['modForum'];
-            $arrForums .= $_POST['nameForum'] . "*" . $_POST['desForum'] . "*" . $_POST['posForum'] . "*" . $modSec . "*" . str_replace("-", " ", $foroLimpio) . ";";
+            $arrForums .= $_POST['nameForum'] . "*" . $_POST['desForum'] . "*" . $_POST['posForum'] . "*" . $modSec . "*" . str_replace(" ", "-", $foroLimpio) . "*".$_POST['tlForum'].";";
             $contenido = fUpdate($contenido, 'arrForums', $arrForums);
             file_put_contents("config.php", html_entity_decode($contenido));
           }
@@ -332,8 +334,13 @@ if (isset($_GET['rename']) && $_GET['rename'] != "")
   {
     $arrRename = explode("*", $_GET['rename']);
     //}
-    echo '<input type="hidden" name="rename" id="rename" value="' . $_GET['rename'] . '" /><input type="text" name="rename2" id="rename2" value="' . $arrRename[0] . '" />
-<input type="text" name="rename3" id="rename3" value="' . $arrRename[1] . '" /><input type="text" name="rename4" id="rename4" value="' . $arrRename[2] . '" /><input type="text" name="rename5" id="rename5" value="' . $arrRename[3] . '" /><input type="submit" name="submit" id="submit" value="' . $lngConfRen . '" />';
+    echo '<input type="hidden" name="rename" id="rename" value="' . $_GET['rename'] . '" />
+	<input type="text" name="rename2" id="rename2" value="' . $arrRename[0] . '" />
+<input type="text" name="rename3" id="rename3" value="' . $arrRename[1] . '" />
+<input type="text" name="rename4" id="rename4" value="' . $arrRename[2] . '" />
+<input type="text" name="rename5" id="rename5" value="' . $arrRename[3] . '" />
+<input type="text" name="rename6" id="rename6" value="' . $arrRename[5] . '" />
+<input type="submit" name="submit" id="submit" value="' . $lngConfRen . '" />';
   }
 if (isset($_POST['rename']))
   {
@@ -360,12 +367,17 @@ if (isset($_POST['rename']))
               }
           }
       }
-    //die( $_POST['rename']);
-    //die($arrForums);
-    //die($foroLimpio);
-    //die($_POST['rename']."<br>");
-    $arrForums = str_replace($_POST['rename'], $_POST['rename2'] . "*" . $_POST['rename3'] . "*" . $_POST['rename4'] . "*" . $_POST['rename5'] . "*" . str_replace("-", " ", $foroLimpio), $arrForums);
-    //die($arrForums);
+    
+	//echo ($_POST['rename2'] . "*" . $_POST['rename3'] . "*" . $_POST['rename4'] . "*" . $_POST['rename5'] . "*" . str_replace("-", " ", $foroLimpio)."*" . $_POST['rename6']);
+	$strReplaceSmall=$_POST['rename'].";";
+	$strReplaceBig=$_POST['rename2'] . "*" . $_POST['rename3'] . "*" . $_POST['rename4'] . "*" . $_POST['rename5'] . "*" . str_replace(" ", "-", $foroLimpio)."*" . $_POST['rename6'].";";
+	//echo $strReplaceSmall."<br>".$strReplaceBig;
+	//$aaaarrForums =stripslashes($arrForums);
+	//echo "<br><br>".$arrForums."<br>";
+	//$arrForums=utf8_decode($arrForums);
+    $arrForums = str_replace($strReplaceSmall, $strReplaceBig, $arrForums,$count);
+	//echo "<br><br>";
+    //die($count."<br>".$arrForums);
     $contenido = fUpdate($contenido, 'arrForums', $arrForums);
     file_put_contents("config.php", html_entity_decode($contenido));
     unset($_POST['rename']);
@@ -373,6 +385,7 @@ if (isset($_POST['rename']))
     unset($_POST['rename3']);
     unset($_POST['rename4']);
     unset($_POST['rename5']);
+	unset($_POST['rename6']);
   }
 else if (isset($_POST['submitBan']))
   {
@@ -493,6 +506,12 @@ else if (isset($_POST['urlLink']))
         $cnfJava = filter_var($_POST['cnfJava'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfLanguage']))
         $cnfLanguage = filter_var($_POST['cnfLanguage'], FILTER_SANITIZE_SPECIAL_CHARS);
+	
+	if (isset($_POST['cnfAutoLanguage']) && $_POST['cnfAutoLanguage'] == "checked")
+        $cnfAutoLanguage = "checked";
+    else
+        $cnfAutoLanguage = "";
+	
     if (isset($_POST['cnfTitle']))
         $cnfTitle = filter_var($_POST['cnfTitle'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfHeaderText']))
@@ -555,6 +574,10 @@ else if (isset($_POST['urlLink']))
         $cnfSpamKey = filter_var($_POST['cnfSpamKey'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfVoteLevel']))
         $cnfVoteLevel = filter_var($_POST['cnfVoteLevel'], FILTER_SANITIZE_SPECIAL_CHARS);
+	if (isset($_POST['cnfVoteMoney']))
+        $cnfVoteMoney = filter_var($_POST['cnfVoteMoney'], FILTER_SANITIZE_SPECIAL_CHARS);	
+	if (isset($_POST['cnfHijosMoney']))
+        $cnfHijosMoney = filter_var($_POST['cnfHijosMoney'], FILTER_SANITIZE_SPECIAL_CHARS);		
 	if (isset($_POST['cnfEmailLevel']))
         $cnfEmailLevel = filter_var($_POST['cnfEmailLevel'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfQuestion1']))
@@ -608,6 +631,11 @@ else if (isset($_POST['urlLink']))
         $cnfLinkedin = "checked";
     else
         $cnfLinkedin = "";
+	if (isset($_POST['cnfWhatsapp']) && $_POST['cnfWhatsapp'] == "checked")
+        $cnfWhatsapp = "checked";
+    else
+        $cnfWhatsapp = "";
+	
     if (isset($_POST['cnfFbFan']))
         $cnfFbFan = filter_var($_POST['cnfFbFan'], FILTER_SANITIZE_SPECIAL_CHARS);
     if (isset($_POST['cnfTwFollow']))
@@ -624,6 +652,11 @@ else if (isset($_POST['urlLink']))
         $cnfInstagramPage = filter_var($_POST['cnfInstagramPage'], FILTER_SANITIZE_SPECIAL_CHARS);
 	if (isset($_POST['cnfLinkedinPage']))
         $cnfLinkedinPage = filter_var($_POST['cnfLinkedinPage'], FILTER_SANITIZE_SPECIAL_CHARS);
+	if (isset($_POST['cnfFbComments']))
+        $cnfFbComments = filter_var($_POST['cnfFbComments'], FILTER_SANITIZE_SPECIAL_CHARS);
+	if (isset($_POST['cnfTwLineIndex']))
+        $cnfTwLineIndex = filter_var($_POST['cnfTwLineIndex'], FILTER_SANITIZE_SPECIAL_CHARS);
+	
 	
     if (isset($_POST['cnfHashtags']) && $_POST['cnfHashtags'] == "checked")
         $cnfHashtags = "checked";
@@ -681,6 +714,7 @@ else if (isset($_POST['urlLink']))
     $contenido = fUpdate($contenido, 'cnfFav', $cnfFav);
     $contenido = fUpdate($contenido, 'cnfJava', $cnfJava);
     $contenido = fUpdate($contenido, 'cnfLanguage', $cnfLanguage);
+	$contenido = fUpdate($contenido, 'cnfAutoLanguage', $cnfAutoLanguage);	
     $contenido = fUpdate($contenido, 'cnfTitle', $cnfTitle);
     $contenido = fUpdate($contenido, 'cnfHeaderText', $cnfHeaderText);
     $contenido = fUpdate($contenido, 'cnfFooterText', $cnfFooterText);
@@ -689,7 +723,7 @@ else if (isset($_POST['urlLink']))
 $contenido = fUpdate($contenido, 'cnfRelatedSubject', $cnfRelatedSubject);		
     $contenido = fUpdate($contenido, 'cnfNewShort', $cnfNewShort);
     $contenido = fUpdate($contenido, 'cnfNewsFeed', $cnfNewsFeed);
-    $contenido = fUpdate($contenido, 'cnfNewsLevel', $cnfNewslevel);
+    $contenido = fUpdate($contenido, 'cnfNewsLevel', $cnfNewsLevel);
     $contenido = fUpdate($contenido, 'cnfNumberPage', $cnfNumberPage);
     /*$contenido=fUpdate($contenido,'cnfNews',$cnfNews);
     $contenido=fUpdate($contenido,'cnfQuestions',$cnfQuestions);
@@ -709,6 +743,8 @@ $contenido = fUpdate($contenido, 'cnfRelatedSubject', $cnfRelatedSubject);
     $contenido = fUpdate($contenido, 'cnfModAnswerLevel', $cnfModAnswerLevel);
     $contenido = fUpdate($contenido, 'cnfSpamKey', $cnfSpamKey);
     $contenido = fUpdate($contenido, 'cnfVoteLevel', $cnfVoteLevel);
+	$contenido = fUpdate($contenido, 'cnfVoteMoney', $cnfVoteMoney);	
+	$contenido = fUpdate($contenido, 'cnfHijosMoney', $cnfHijosMoney);		
 	$contenido = fUpdate($contenido, 'cnfEmailLevel', $cnfEmailLevel);
     $contenido = fUpdate($contenido, 'cnfQuestion1', $cnfQuestion1);
     $contenido = fUpdate($contenido, 'cnfAnswer1', $cnfAnswer1);
@@ -732,6 +768,7 @@ $contenido = fUpdate($contenido, 'cnfRelatedSubject', $cnfRelatedSubject);
     $contenido = fUpdate($contenido, 'cnfGooglePlus', $cnfGooglePlus);
     $contenido = fUpdate($contenido, 'cnfPinterest', $cnfPinterest);
     $contenido = fUpdate($contenido, 'cnfLinkedin', $cnfLinkedin);
+	$contenido = fUpdate($contenido, 'cnfWhatsapp', $cnfWhatsapp);
     $contenido = fUpdate($contenido, 'cnfFbFan', $cnfFbFan);
     $contenido = fUpdate($contenido, 'cnfTwFollow', $cnfTwFollow);
     $contenido = fUpdate($contenido, 'cnfytChannel', $cnfytChannel);
@@ -740,6 +777,8 @@ $contenido = fUpdate($contenido, 'cnfRelatedSubject', $cnfRelatedSubject);
 	$contenido = fUpdate($contenido, 'cnfPinterestPage', $cnfPinterestPage);
 	$contenido = fUpdate($contenido, 'cnfInstagramPage', $cnfInstagramPage);
 	$contenido = fUpdate($contenido, 'cnfLinkedinPage', $cnfLinkedinPage);	
+	$contenido = fUpdate($contenido, 'cnfFbComments', $cnfFbComments);		
+	$contenido = fUpdate($contenido, 'cnfTwLineIndex', $cnfTwLineIndex);			
     $contenido = fUpdate($contenido, 'cnfHashtags', $cnfHashtags);
     $contenido = fUpdate($contenido, 'cnfHomeCacheTime', $cnfHomeCacheTime);
     $contenido = fUpdate($contenido, 'cnfForumCacheTime', $cnfForumCacheTime);
@@ -873,8 +912,12 @@ if ($cnfLanguage == "es-ES")
 <input type="radio" name="cnfLanguage"  value="en-US" <?php
 if ($cnfLanguage == "en-US")
     echo "checked";
-?>>English<br>
-
+?>>English
+<br>
+Select Language Automatically<input  type="checkbox" name="cnfAutoLanguage" value="checked" <?php
+echo $cnfAutoLanguage;
+?>/>
+<br>
 <label><?php
 echo $lngTitle;
 ?></label><input id="cnfTitle" name="cnfTitle" value="<?php
@@ -1069,8 +1112,12 @@ else
 ?>' type="text"/>
 	<input id="forumMod" value='<?php
         echo $arrayOfArrays[$x][3];
-?>' type="text"/><a href="admin.php?rename=<?php
-        echo $arrayOfArrays[$x][0] . "*" . $arrayOfArrays[$x][1] . "*" . $arrayOfArrays[$x][2] . "*" . $arrayOfArrays[$x][3] . "*" . $arrayOfArrays[$x][4];
+?>' type="text"/>
+	<input id="forumTl" value='<?php
+        echo $arrayOfArrays[$x][5];
+?>' type="text"/>
+<a href="admin.php?rename=<?php
+        echo $arrayOfArrays[$x][0] . "*" . $arrayOfArrays[$x][1] . "*" . $arrayOfArrays[$x][2] . "*" . $arrayOfArrays[$x][3] . "*" . $arrayOfArrays[$x][4]. "*" . $arrayOfArrays[$x][5];
 ?>">Editar</a>
 	<a href="admin.php?delete=<?php
         echo $arrayOfArrays[$x][0];
@@ -1080,15 +1127,18 @@ else
   }
 ?>
 
-<label>Add Forum</label><input id="nameForum" name="nameForum" value='' type="text"/><input id="desForum" name="desForum" value='' type="text"/><input id="posForum" name="posForum" value='0' type="text"/><input id="modForum" name="modForum" value='0' type="text"/><input type="submit" name="submit" id="submit" value="Add" />
+<label>Add Forum</label><input id="nameForum" name="nameForum" value='' type="text"/><input id="desForum" name="desForum" value='' type="text"/><input id="posForum" name="posForum" value='0' type="text"/>
+<input id="modForum" name="modForum" value='0' type="text"/>
+<input id="tlForum" name="tlForum" value='0' type="text"/>
+<input type="submit" name="submit" id="submit" value="Add" />
 <h2>Messages</h2>
 <hr style="width:75%;float:left;"></hr><br>
-<br><label><?php
+<!--<br><label><?php
 echo "Enabled autoposting in header.php(slower)";
 ?>:</label>
 <input type="checkbox" name="cnfAutoPosting" value="checked" <?php
 echo $cnfAutoPosting;
-?>><br>
+?>><br>-->
 
 <?php
 if (file_exists("p.xml"))
@@ -1167,6 +1217,16 @@ echo $cnfSpamKey;
 echo "Vote >(level)";
 ?>:</label> <input id="cnfVoteLevel" name="cnfVoteLevel" value='<?php
 echo $cnfVoteLevel;
+?>' type="text"/><br>
+<label><?php
+echo "Vote Monetize(0 or empty to disable)";
+?>:</label> <input id="cnfVoteMoney" name="cnfVoteMoney" value='<?php
+echo $cnfVoteMoney;
+?>' type="text"/><br>
+<label><?php
+echo "Refers Monetize(0 or empty to disable)";
+?>:</label> <input id="cnfHijosMoney" name="cnfHijosMoney" value='<?php
+echo $cnfHijosMoney;
 ?>' type="text"/><br>
 <label><?php
 echo "send email >(level)";
@@ -1292,7 +1352,10 @@ echo $cnfPinterest;
 ?>>Pinterest
 <input type="checkbox" name="cnfLinkedin" value="checked" <?php
 echo $cnfLinkedin;
-?>>Linkedin<br><br><br>
+?>>Linkedin
+<input type="checkbox" name="cnfWhatsapp" value="checked" <?php
+echo $cnfWhatsapp;
+?>>Whatsapp<br><br><br>
 <label>Facebook Fan Page:</label> <input id="fbFanPage" name="cnfFbFan" value='<?php
 echo $cnfFbFan;
 ?>' type="text"/><br>
@@ -1326,6 +1389,14 @@ echo $cnfInstagramPage;
 <label><?php 
 echo "Linkedin Profile";?></label> <input id="linkedin" name="cnfLinkedinPage" value='<?php
 echo $cnfLinkedinPage;
+?>' type="text"/><br>
+<label><?php
+echo "Number FaceBook Comments";?></label> <input id="facebookcomment" name="cnfFbComments" value='<?php
+echo $cnfFbComments;
+?>' type="text"/><br>
+<label><?php
+echo "Twitter TimeLine Index(search_id)";?></label> <input id="twtimelineindex" name="cnfTwLineIndex" value='<?php
+echo $cnfTwLineIndex;
 ?>' type="text"/><br>
 <input type="checkbox" name="cnfHashtags" value="checked" <?php
 echo $cnfHashtags;

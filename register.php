@@ -2,16 +2,14 @@
 include('config.php');
 include('header.php');
 /*include('mail.php');*/
-session_start();
+//session_start();
 
 $parent=0;
-if(isset($_GET["p"])){$_SESSION['parent']=filter_var($_GET["p"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-$parent=$_SESSION['parent'];
-}else if(isset($_SESSION['parent'])){$parent=$_SESSION['parent'];}
+if(isset($_SESSION['parent'])){$parent=$_SESSION['parent'];}
 
 if(isset($_SESSION['iduserx']))
 {
-echo "<h1>Hola ".$_SESSION['iduserx']."</h1>. ".$lngConnected."<a href='logout.php?r=".$_SESSION['return']."'>".$lngLogOut."</a>";
+$logged="<h1>Hola ".$_SESSION['iduserx']."</h1>".$lngConnected."<a href='logout.php?r=".$_SESSION['return']."'>".$lngLogOut."</a>";
 }
 ?>
 <title><?php echo $cnfTitle;?> | Register</title>
@@ -23,6 +21,10 @@ echo "<h1>Hola ".$_SESSION['iduserx']."</h1>. ".$lngConnected."<a href='logout.p
 <a href="<?php echo $_SESSION['return'];?>"><?php echo "Volver a ".$_SESSION['return'];?></a> >
 Register
 </nav>
+ <?php
+  if(!isset($_SESSION['iduserx']))
+	{
+  ?>
 <article class="article">
   <header>
 	<h1  class='h1GrayCenter'><?php echo $lngReg;?></h1>
@@ -49,7 +51,7 @@ if($code=="blitzito"){*/
  
 //die($_POST["user"]."-".preg_match('/[a-zA-Z0-9 ]+$/' , $_POST["user"]));
  
-	if($_POST["user"]!=""&&$_POST["password"]!=""&&$_POST["password2"]!=""&&$_POST["email"]!=""
+	if(isset($_POST["user"]))if($_POST["user"]!=""&&$_POST["password"]!=""&&$_POST["password2"]!=""&&$_POST["email"]!=""
 	||
 	($cnfQuestion1!=""&&$_POST["answer1"]=="")
 	||
@@ -88,18 +90,26 @@ if($code=="blitzito"){*/
 	{
 		if(!is_writable($cnfUsers."/".$_POST["user"][0].".php"))chmod($cnfUsers."/".$_POST["user"][0].".php", 0644);
 	
-		$contenido=file_get_contents("users/".strtolower($_POST["user"][0]).".php");	
+		$contenido=file_get_contents($cnfUsers."/".strtolower($_POST["user"][0]).".php");	
 			if(strpos(htmlentities($contenido),$_POST["user"]."=",0)!==false){
 			echo "<h4 class='h4Bad'>".$lngStillUser."</h4>";
 			}else if(strpos(htmlentities($contenido),",".$_POST["email"].",",0)!==false){
 			echo "<h4 class='h4Bad'>".$lngStillEmail."</h4>";
 			}else{
-			$fp = fopen($cnfUsers."/".$_POST["user"][0].".php", "r+");
-			rewind($fp);
-			fseek($fp,strlen($contenido)-2);
-			fwrite($fp, $_POST["user"].'=0,0,0,'.$_POST["email"].','.time().','.$parent.',0,'.sha1($_POST["user"].$_POST["password"]).';?>');
-			fclose($fp);
-			$enter=true;
+				
+				$contenido2=file_get_contents($cnfUsers."/mailist.php");						
+				if(strpos(htmlentities($contenido2),";".$_POST["email"].";",0)!==false)
+				{
+				echo "<h4 class='h4Bad'>".$lngStillEmail."</h4>";
+				}else{
+						
+				$fp = fopen($cnfUsers."/".$_POST["user"][0].".php", "r+");
+				rewind($fp);
+				fseek($fp,strlen($contenido)-2);
+				fwrite($fp, $_POST["user"].'=0,0,0,'.$_POST["email"].','.time().','.$parent.',0,'.sha1($_POST["user"].$_POST["password"]).';?>');
+				fclose($fp);
+				$enter=true;
+				}
 			}
 	}else{
 	$fp = fopen($cnfUsers."/".$_POST["user"][0].".php", "w+");
@@ -111,9 +121,24 @@ if($code=="blitzito"){*/
 	
 	if($enter==true){	
 //filemtime() 	
+	if (!isset($_SESSION)) { session_start(); }
 	$_SESSION['iduserx']=$_POST["user"];		
-	$_SESSION['level']=0;
+	$_SESSION['level']=0;	
 	echo "<h1>Bienvenido ".$_POST["user"].".</h1>";		
+	
+	if(file_exists($cnfUsers."/mailist.php")){
+		$contenido2=file_get_contents($cnfUsers."/mailist.php");	
+		$fp = fopen($cnfUsers."/mailist.php", "r+");		
+		rewind($fp);
+		fseek($fp,strlen($contenido2)-2);
+		fwrite($fp, $_POST["email"].';?>');
+		fclose($fp);
+	}else{
+		$fp = fopen($cnfUsers."/mailist.php", "w+");
+		fwrite($fp, '<?php ;'.$_POST["email"].';?>');
+		chmod($cnfUsers."/mailist.php", 0755);
+		fclose($fp);
+	}
 	
 $titulo= 'Bienvenido ';
 $mensaje   = $cnfRegMailHeader." ".$_POST["user"].".".$cnfRegMailFooter;
@@ -138,9 +163,15 @@ header( "refresh:1;url=".$_SESSION['return']);
 ?>
     </section>
   </article>
+  <?php
+}else{
+	echo $logged;
+}
+  ?>
  <footer>
 	<?php
-	include('footer.php');
+echo $cnfFooterText;
+include('footer.php');
 	?>
  </footer>
 </center>

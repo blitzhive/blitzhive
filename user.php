@@ -33,10 +33,17 @@ else
 function fUser($points, $user)
   {
     $strPerfil = "";
-    if ($points < 25)
-      {
-        $strPerfil .= "Cocoon 0";
-      }
+	
+	if ($points == 0 )
+	  {
+		$strPerfil .= "Crisálida º";
+		
+	  }
+	else if ($points < 2 )
+	  {
+		$strPerfil .= "Zángano 0";
+		
+	  }
     else if ($points < 60)
       {
         $strPerfil .= "Ninfa ()";
@@ -45,30 +52,17 @@ function fUser($points, $user)
       {
         $strPerfil .= "Obrero (|)";
       }    
-    else if ($points < 320)
+    else if ($points < 600)
       {
         $strPerfil .= "Soldado ([])";
       }
-    else if ($points < 600)
-      {
-        $strPerfil .= "Omega (/\)";
-      }
-    else if ($points < 800)
-      {
-        $strPerfil .= "Matriarca <->";
-        $strPerfil .= $user . ".blitzhive.net";
-      }
     else if ($points < 1000)
       {
-        $strPerfil .= "Embajador <^>";
-        $strPerfil .= $user . ".blitzhive.net";
-        $strPerfil .= $user . "@blitzhive.net";
-      }
+        $strPerfil .= "Matriarca <->";       
+      } 
     else if ($points >= 1000)
       {
-        $strPerfil .= "Consorte <*>";
-        $strPerfil .= $user . ".blitzhive.net";
-        $strPerfil .= $user . "@blitzhive.net";
+        $strPerfil .= "Consorte <*>";        
         //echo $user."@blitzhive.com";
       }
     return $strPerfil;
@@ -80,10 +74,10 @@ if (!isset($_SESSION['enviadorecover']) && isset($_SESSION['timeSec']) && isset(
     $mensaje   = $lngIntoCode . ":" . $_SESSION['hashSec'];
     $cabeceras = 'From: ' . $cnfEmail . "\r\n" . 'Reply-To: ' . $cnfEmail . "\r\n" . 'X-Mailer: PHP/' . phpversion();
     //if(mail($_SESSION['emaila'], $titulo, $mensaje, $cabeceras)){
-    mail($_SESSION['emaila'], $titulo, $mensaje, $cabeceras);
-    //echo $_SESSION['hashSec'];
+    //if(isset($_SESSION['emaila']))
+		mail($_SESSION['emaila'], $titulo, $mensaje, $cabeceras);    
     $_SESSION['enviadorecover'] = 1;
-    die($lngIntoCodeEmail . ':<form id="form1" name="form1" method="post" action="' . $cnfHome . $strLink . 'user.php?w=' . $q . '"  enctype="multipart/form-data">	
+    die($lngIntoCodeEmail . ':<form id="form1" name="form1" method="post" action="' . $cnfHome . $strLink . 'user.php?w=1"  enctype="multipart/form-data">	
 <input type="text" name="code" id="code" value="" /><input type="submit" name="submitCode" id="submitCode" value="' . $lngConfmCode . '" /></form>');
     /*}else{
     die("<h1>No hemos podido enviar el email :(. Pruebe más tarde por favor.</h1>");
@@ -104,6 +98,8 @@ if (isset($_POST["submitCode"]) && isset($_SESSION['timeSec']) && isset($_SESSIO
         unset($_SESSION['hashSec']);
         $_SESSION['iduserx']  = $_SESSION['sheep'];
         $_SESSION['tempUser'] = 1;
+		//unset($_SESSION['enviadorecover']);
+		
         die(header("refresh:0;url=" . $cnfHome . $strLink . $_SESSION['sheep'] . $strLinkEnd));
       }
     else
@@ -214,6 +210,7 @@ if (file_exists($cnfUsers . "/" . $user[0] . ".php"))
     ini_set('memory_limit', '-1');
     $contenido = file_get_contents($cnfUsers . "/" . $user[0] . ".php");
     $posA      = strpos($contenido, $user . "=", 0);
+	$intVotes=0;
     if ($posA !== false)
       {
         $posB               = strpos($contenido, "=", $posA);
@@ -248,14 +245,41 @@ if (file_exists($cnfUsers . "/" . $user[0] . ".php"))
           {
             $strDes = "Sin descripción";
           }
+		//blitzhivemod
+		
+		if($cnfVoteMoney!="0"&&$cnfVoteMoney!=""){
+		$intVotesMoney=0;
+		$intVotesMoney=$intVotes*$cnfVoteMoney;		
+		$strVotesMoney="(<a href='http://blitzhive.com/dinero-por-contenido.php' target='_blank'>Ha ganado ".$intVotesMoney."$ escribiendo y respondiendo artículos</a>)";
+		}else{
+		$strVotesMoney="(<a href='http://blitzhive.com/dinero-por-contenido.php' target='_blank'>Ha ganado ".$intVotesMoney." votos escribiendo y respondiendo artículos</a>)";
+		}
+		
+		if($cnfHijosMoney!="0"&&$cnfHijosMoney!=""){
+		$intHijosMoney=0;
+		$intHijosMoney=$intHijos*$cnfHijosMoney;		
+		$strHijosMoney="(<a href='http://blitzhive.com/dinero-por-contenido.php' target='_blank'>Ha ganado ".$intHijosMoney."$ mediante referidos(mayores de nivel 25)</a>)";		
+		}else{
+		$strHijosMoney="(<a href='http://blitzhive.com/dinero-por-contenido.php' target='_blank'>Tiene ".$intHijos." hijos(mayores de nivel 25)</a>)";
+		}
+		
+		
+		
+				
+		  
         $strTitle .= "<label>" . $lngSince . ":</label>" . gmdate("<b>d-M-Y</b> G:i", $intDate) . "<br>";
-        $strTitle .= "<label>" . $lngVotes . ":</label><b>" . $intVotes . "</b><br>";
+        $strTitle .= "<label>" . $lngVotes . ":</label><b>" . $intVotes . $strVotesMoney."</b><br>";
         $strTitle .= "<label>" . $lngMess . ":</label>" . $intPost . "<br>";
-        $strTitle .= "<label>" . $lngChildren . ":</label>" . $intHijos . "<br>";
+        $strTitle .= "<label>" . $lngChildren . ":</label><b>" . $intHijos . $strHijosMoney."</b><br>";
+			if($cnfHijosMoney!="0"&&$cnfHijosMoney!=""){
+		$strTitle .='<br><i>Link de referidos en cualquier enlace que envíes se añade automáticamente tu referencia<input type="text" onClick="this.select();" name="linkRefer" id="linkRefer" value="'.$cnfHome .'?p='.$user.'" /></i><br>';
+		}
         $strTitle .= "<label>" . $lngParent . ":</label>" . $strPadre . "<br>";
         $strTitle .= "<label>" . $lngDes . ":</label>" . $strDes . "<br>";
         //&&intval($_SESSION['level'])>60
 		//if (intval($_SESSION['level']) < intval($cnfVoteLevel))
+			
+		
 		if($cnfEmailLevel=="")$cnfEmailLevel=0;
         if (isset($_SESSION['iduserx']) && $_SESSION['iduserx'] != $user && intval($_SESSION['level'])>=$cnfEmailLevel)
           {
@@ -271,10 +295,13 @@ if (file_exists($cnfUsers . "/" . $user[0] . ".php"))
                 $strTitle .= '<label>' . $lngCurrPass . '</label><input placeholder="Contraseña actual" id="password"  name="password" type="password" value=""/>
 	<br>';
               }
+			  
+			  
             $strTitle .= '<label>' . $lngNewPass . '</label><input 
  placeholder="' . $lngNewPass . '"	id="password1"  name="password1" type="password" value=""/>
 	<input  id="password2" placeholder="Repetir contraseña" name="password2" type="password" value=""/><br>
 	<input type="submit" name="submitCambio" id="submitCambio" value="' . $lngChange . '" /></form>' . $strEmailChange;
+
           }
         /*else{
         $strTitle.='<i>Necesitas nivel <a href="'.$cnfHome.'swarm.php" title="'.$lngMoreInfoLevel.'">Omega(+320)</a> '.$lngAllowEmail.'</i>';
@@ -364,18 +391,20 @@ else
 </head>
 <body>
 <div class="box1" >
-<a href="<?php
+<!--<a style="float:left;" href="<?php
 echo $cnfHome;
 ?>" alt="<?php
 echo $lngBackIndex;
 ?>" title="<?php
 echo $lngBackIndex;
 ?>">
-<img class="logo" title="<?php
+-->
+<img style="cursor:pointer;" onclick="javascript:location.href='<?php echo $cnfHome;?>'" class="logo" title="<?php
 echo $cnfHeaderText;
 ?>" src="<?php
 echo $cnfHome . $cnfLogo;
-?>" /></a>
+?>" />
+<!--</a>-->
 <div class="boxAlignVertical">
 <h1 class='h1Vertical'><?php
 echo $cnfHeaderText;
@@ -384,7 +413,7 @@ echo $cnfHeaderText;
 if (isset($_SESSION['iduserx']))
   {
 	 $_SESSION['return']="index.php";
-    echo "<h4 class='h4hello'>" . $lngHi . " <a title='" . $lngSeeProfile . "' href='" . $cnfHome . "user.php" . $strLinkUser . $_SESSION['iduserx'] . $strLinkUser . "'>" . $_SESSION['iduserx'] . "</a></h4><a class='aLogin' href='". $cnfHome ."logout.php'>¿Salir?</a>";
+    echo "<h4 class='h4hello'>" . $lngHi ." ". $_SESSION['iduserx'] . "</h4><a class='aLogin' href='". $cnfHome ."logout.php'>¿Salir?</a>";
     if ($_SESSION['iduserx'] == $cnfAdm)
       {
         echo "<a class='aLogin' href='" . $cnfHome . "admin.php'>" . $lngAdm . "</a>";
